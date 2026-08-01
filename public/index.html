@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#c5a880">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Lulu Estética Facial - Catálogo de Procedimentos</title>
+  
+  <!-- Fontes e Ícones -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Estilos e Manifesto PWA -->
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.jpg">
+</head>
+<body class="public-body">
+  
+  <!-- Cabeçalho Público -->
+  <header class="app-header public-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="logo-icon">
+          <i data-lucide="sparkles"></i>
+        </div>
+        <div>
+          <h1>Lulu Estética</h1>
+          <span class="sub-brand">Catálogo de Procedimentos & Cuidados Faciais</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <span id="connection-status" class="status-badge online">
+          <span class="status-dot"></span>
+          <span class="status-text">Online</span>
+        </span>
+        <button id="pwa-install-btn" class="btn btn-secondary install-btn" style="display: none;">
+          <i data-lucide="download"></i>
+          <span>Instalar App</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Banner de Boas-Vindas Público -->
+  <section class="public-hero">
+    <div class="hero-content">
+      <h2>Descubra a sua melhor versão</h2>
+      <p>Confira nossos procedimentos faciais e produtos exclusivos disponíveis para agendamento e entrega.</p>
+    </div>
+  </section>
+
+  <!-- Container Principal Público -->
+  <main class="app-container public-container">
+    
+    <!-- Filtro de Busca -->
+    <div class="catalog-controls search-public">
+      <div class="search-box">
+        <i data-lucide="search"></i>
+        <input type="text" id="search-input" placeholder="Buscar procedimento ou produto por nome...">
+      </div>
+    </div>
+
+    <!-- Grid do Catálogo Público -->
+    <div id="catalog-grid" class="catalog-grid public-grid">
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Carregando procedimentos disponíveis...</p>
+      </div>
+    </div>
+    
+    <!-- Paginação Pública -->
+    <div id="public-pagination" class="pagination-container"></div>
+    
+    <!-- Estado Vazio -->
+    <div id="empty-state" class="empty-state" style="display: none;">
+      <div class="empty-icon"><i data-lucide="sparkles"></i></div>
+      <h3>Nenhum procedimento disponível no momento</h3>
+      <p>Todos os nossos itens foram reservados ou vendidos! Volte em breve para conferir as novidades.</p>
+    </div>
+
+  </main>
+
+  <!-- Footer Público -->
+  <footer class="public-footer">
+    <p>&copy; 2026 Lulu Estética Facial. Todos os direitos reservados.</p>
+  </footer>
+
+  <!-- Componente Toast -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Lógica Pública -->
+  <script src="app.js"></script>
+</body>
+</html>

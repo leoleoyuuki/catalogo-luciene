@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#c5a880">
+  <title>Lulu Estética - Painel Administrativo</title>
+  
+  <!-- Fontes e Ícones -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Estilos e Manifesto PWA -->
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.jpg">
+</head>
+<body>
+  
+  <!-- Cabeçalho Principal Admin -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="logo-icon">
+          <i data-lucide="shield-check"></i>
+        </div>
+        <div>
+          <h1>Painel Administrativo</h1>
+          <span class="sub-brand">Gestão de Estoque & Vendas</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <a href="index.html" target="_blank" class="btn btn-secondary nav-link-btn" title="Abrir catálogo público de clientes">
+          <i data-lucide="external-link"></i>
+          <span>Ver Catálogo Público</span>
+        </a>
+        <span id="connection-status" class="status-badge online">
+          <span class="status-dot"></span>
+          <span class="status-text">Online</span>
+        </span>
+        <button id="pwa-install-btn" class="btn btn-secondary install-btn" style="display: none;">
+          <i data-lucide="download"></i>
+          <span>Instalar</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Container Principal -->
+  <main class="app-container">
+    
+    <!-- Dashboard de Estatísticas Avançado -->
+    <section class="stats-grid">
+      <div class="stat-card total-products">
+        <div class="stat-icon">
+          <i data-lucide="package-check"></i>
+        </div>
+        <div class="stat-info">
+          <h3>Estoque Ativo</h3>
+          <p id="stat-stock-count">0</p>
+          <span id="stat-stock-value" class="profit-margin" style="background: rgba(197, 168, 128, 0.1); color: var(--text-secondary);">R$ 0,00 custo</span>
+        </div>
+      </div>
+      
+      <div class="stat-card total-cost">
+        <div class="stat-icon">
+          <i data-lucide="shopping-bag"></i>
+        </div>
+        <div class="stat-info">
+          <h3>Itens Vendidos</h3>
+          <p id="stat-sold-count">0</p>
+        </div>
+      </div>
+      
+      <div class="stat-card total-revenue">
+        <div class="stat-icon">
+          <i data-lucide="coins"></i>
+        </div>
+        <div class="stat-info">
+          <h3>Faturamento Real</h3>
+          <p id="stat-revenue">R$ 0,00</p>
+        </div>
+      </div>
+      
+      <div class="stat-card total-profit">
+        <div class="stat-icon">
+          <i data-lucide="trending-up"></i>
+        </div>
+        <div class="stat-info">
+          <h3>Lucro Líquido Real</h3>
+          <p id="stat-profit">R$ 0,00</p>
+          <span id="stat-margin" class="profit-margin">0% margem</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Layout Dividido: Cadastro e Gerenciamento -->
+    <div class="main-layout">
+      
+      <!-- Lado Esquerdo: Formulário de Cadastro -->
+      <section class="form-section">
+        <div class="card">
+          <div class="card-header">
+            <i data-lucide="plus-circle"></i>
+            <h2>Cadastrar no Estoque</h2>
+          </div>
+          
+          <form id="product-form" novalidate>
+            <!-- Dropzone de Imagem -->
+            <div class="form-group">
+              <label>Foto do Procedimento / Produto</label>
+              <div class="image-upload-wrapper" id="dropzone">
+                <input type="file" id="image-input" name="image" accept="image/*" required>
+                <div class="upload-placeholder" id="upload-placeholder">
+                  <i data-lucide="image-plus" class="upload-icon"></i>
+                  <p class="upload-title">Arraste a foto ou clique para escolher</p>
+                  <p class="upload-subtitle">Salva no PC e envia para a Nuvem (FreeImage.host)</p>
+                </div>
+                <div class="image-preview-container" id="preview-container" style="display: none;">
+                  <img id="image-preview" src="#" alt="Pré-visualização">
+                  <button type="button" id="remove-image-btn" class="remove-img-btn">
+                    <i data-lucide="x"></i>
+                  </button>
+                </div>
+              </div>
+              <span class="error-msg" id="image-error"></span>
+            </div>
+
+            <!-- Nome do Produto -->
+            <div class="form-group">
+              <label for="name-input">Nome do Procedimento ou Item</label>
+              <div class="input-wrapper">
+                <i data-lucide="tag" class="input-icon"></i>
+                <input type="text" id="name-input" name="name" placeholder="Ex: Toxina Botulínica, Preenchimento..." required>
+              </div>
+              <span class="error-msg" id="name-error"></span>
+            </div>
+
+            <!-- Valores -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="cost-input">Custo de Insumo (R$)</label>
+                <div class="input-wrapper">
+                  <span class="currency-symbol">R$</span>
+                  <input type="number" id="cost-input" name="cost" step="0.01" min="0" placeholder="0,00" required>
+                </div>
+                <span class="error-msg" id="cost-error"></span>
+              </div>
+              
+              <div class="form-group">
+                <label for="price-input">Preço no Catálogo (R$)</label>
+                <div class="input-wrapper">
+                  <span class="currency-symbol">R$</span>
+                  <input type="number" id="price-input" name="price" step="0.01" min="0" placeholder="0,00" required>
+                </div>
+                <span class="error-msg" id="price-error"></span>
+              </div>
+            </div>
+
+            <button type="submit" id="submit-btn" class="btn btn-primary btn-block">
+              <i data-lucide="save"></i>
+              <span>Salvar no Estoque</span>
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- Lado Direito: Abas de Gerenciamento -->
+      <section class="catalog-section">
+        
+        <!-- Navegação por Abas -->
+        <div class="admin-tabs">
+          <button id="tab-stock-btn" class="tab-btn active">
+            <i data-lucide="package"></i>
+            <span>Estoque Ativo</span>
+            <span id="stock-badge" class="badge">0</span>
+          </button>
+          <button id="tab-sales-btn" class="tab-btn">
+            <i data-lucide="history"></i>
+            <span>Histórico de Vendas</span>
+            <span id="sales-badge" class="badge">0</span>
+          </button>
+        </div>
+
+        <div class="catalog-controls">
+          <div class="search-box">
+            <i data-lucide="search"></i>
+            <input type="text" id="search-input" placeholder="Buscar por nome...">
+          </div>
+        </div>
+
+        <!-- Conteúdo 1: Grid de Estoque Ativo -->
+        <div id="stock-view">
+          <div id="stock-grid" class="catalog-grid">
+            <div class="loading-state">
+              <div class="spinner"></div>
+              <p>Carregando estoque do servidor...</p>
+            </div>
+          </div>
+          <div id="stock-empty" class="empty-state" style="display: none;">
+            <div class="empty-icon"><i data-lucide="sparkles"></i></div>
+            <h3>Nenhum produto em estoque</h3>
+            <p>Cadastre novos procedimentos ao lado para alimentar seu estoque!</p>
+          </div>
+          <div id="stock-pagination" class="pagination-container"></div>
+        </div>
+
+        <!-- Conteúdo 2: Tabela de Histórico de Vendas -->
+        <div id="sales-view" style="display: none;">
+          <div class="card sales-table-card">
+            <div class="table-responsive">
+              <table class="sales-table">
+                <thead>
+                  <tr>
+                    <th>Procedimento</th>
+                    <th>Custo</th>
+                    <th>Valor Tabela</th>
+                    <th>Vendido Por</th>
+                    <th>Lucro Obtido</th>
+                    <th>Data da Venda</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="sales-table-body">
+                  <!-- Injetado via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div id="sales-pagination" class="pagination-container"></div>
+          <div id="sales-empty" class="empty-state" style="display: none;">
+            <div class="empty-icon"><i data-lucide="history"></i></div>
+            <h3>Nenhuma venda registrada ainda</h3>
+            <p>Quando você der baixa em um produto do estoque, ele aparecerá aqui com os detalhes financeiros da venda.</p>
+          </div>
+        </div>
+
+      </section>
+      
+    </div>
+  </main>
+
+  <!-- Modal para Dar Baixa / Abater Estoque -->
+  <div id="sell-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3><i data-lucide="check-circle-2"></i> Dar Baixa no Estoque</h3>
+        <button id="close-modal-btn" class="modal-close-btn">&times;</button>
+      </div>
+      <form id="sell-form">
+        <p class="modal-subtitle">Confirme o valor final pelo qual o procedimento foi vendido ao cliente:</p>
+        
+        <div class="modal-product-summary">
+          <span id="modal-product-name" class="modal-item-title">-</span>
+          <div class="modal-item-details">
+            <span>Custo: <strong id="modal-product-cost">R$ 0,00</strong></span>
+            <span>Preço Tabela: <strong id="modal-product-price">R$ 0,00</strong></span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="sold-price-input">Valor Final de Venda (R$)</label>
+          <div class="input-wrapper">
+            <span class="currency-symbol">R$</span>
+            <input type="number" id="sold-price-input" step="0.01" min="0" placeholder="0,00" required>
+          </div>
+          <span class="error-msg" id="sell-price-error"></span>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" id="cancel-sell-btn" class="btn btn-secondary">Cancelar</button>
+          <button type="submit" id="confirm-sell-btn" class="btn btn-primary">
+            <i data-lucide="check"></i>
+            <span>Confirmar e Abater</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Componente Toast -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Script Admin -->
+  <script src="admin.js"></script>
+</body>
+</html>

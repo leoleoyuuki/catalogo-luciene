@@ -1,0 +1,20 @@
+{
+  "name": "catalogo-lulu",
+  "version": "1.0.0",
+  "description": "Catalogo de produtos PWA com armazenamento local em pastas",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "share": "lt --port 3005"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "multer": "^1.4.5-lts.1"
+  },
+  "devDependencies": {
+    "localtunnel": "^2.0.2"
+  },
+  "author": "",
+  "license": "ISC"
+}

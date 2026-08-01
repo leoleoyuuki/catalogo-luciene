@@ -4,10 +4,12 @@ const path = require('path');
 const fs = require('fs').promises;
 
 const app = express();
+const router = express.Router();
+
 const FREEIMAGE_API_KEY = '6d207e02198a847aa98d0a2a901485a5';
 const UPLOADS_DIR = path.join(__dirname, '..', 'uploads');
 
-// Armazenamento em memória global para persistência em ambiente serverless
+// Armazenamento em memória global para persistência serverless
 let globalProductsCache = null;
 
 app.use(express.json());
@@ -59,7 +61,6 @@ async function uploadToFreeImageHost(buffer, filename, mimetype) {
   }
 }
 
-// Obter lista de produtos (Carrega do disco local se disponível ou do cache)
 async function getProducts() {
   if (globalProductsCache !== null) {
     return globalProductsCache;
@@ -105,7 +106,7 @@ async function getProducts() {
 }
 
 // 1. Cadastrar Produto Físico
-app.post('/api/products', upload.single('image'), async (req, res) => {
+router.post('/products', upload.single('image'), async (req, res) => {
   try {
     const { name, cost, price } = req.body;
     const file = req.file;
@@ -129,7 +130,6 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
     const slug = slugify(name) || 'produto';
     const folderId = `${slug}-${timestamp}`;
 
-    // Upload remoto para FreeImage.host
     const remoteImageUrl = await uploadToFreeImageHost(file.buffer, file.originalname, file.mimetype);
     const fallbackImage = `/uploads/${folderId}/image.jpg`;
 
@@ -144,7 +144,6 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
       createdAt: new Date().toISOString()
     };
 
-    // Tentar salvar no disco local se ambiente permitir
     try {
       const productFolder = path.join(UPLOADS_DIR, folderId);
       await fs.mkdir(productFolder, { recursive: true });
@@ -156,7 +155,6 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
       // Ignora falhas de disco no Vercel
     }
 
-    // Atualizar cache em memória
     const current = await getProducts();
     current.unshift(metadata);
     globalProductsCache = current;
@@ -170,7 +168,7 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
 });
 
 // 2. Listar Produtos (Admin)
-app.get('/api/products', async (req, res) => {
+router.get('/products', async (req, res) => {
   try {
     const allProducts = await getProducts();
     const page = parseInt(req.query.page) || 1;
@@ -225,7 +223,7 @@ app.get('/api/products', async (req, res) => {
 });
 
 // 3. Listar Produtos Públicos (Somente em estoque, sem custo)
-app.get('/api/products/public', async (req, res) => {
+router.get('/products/public', async (req, res) => {
   try {
     const allProducts = await getProducts();
     const page = parseInt(req.query.page) || 1;
@@ -267,7 +265,7 @@ app.get('/api/products/public', async (req, res) => {
 });
 
 // 4. Dar Baixa no Estoque (Vender Produto)
-app.post('/api/products/:id/sell', async (req, res) => {
+router.post('/products/:id/sell', async (req, res) => {
   try {
     const { id } = req.params;
     const { soldPrice } = req.body;
@@ -286,13 +284,12 @@ app.post('/api/products/:id/sell', async (req, res) => {
     product.soldPrice = finalPrice;
     product.soldAt = new Date().toISOString();
 
-    // Tentar atualizar disco local
     try {
       const safeId = path.basename(id);
       const metadataPath = path.join(UPLOADS_DIR, safeId, 'metadata.json');
       await fs.writeFile(metadataPath, JSON.stringify(product, null, 2), 'utf8');
     } catch (e) {
-      // Ignora erros de escrita no Vercel
+      // Ignora erros no Vercel
     }
 
     console.log(`Baixa efetuada: "${product.name}" por R$ ${finalPrice}`);
@@ -304,7 +301,7 @@ app.post('/api/products/:id/sell', async (req, res) => {
 });
 
 // 5. Deletar Produto
-app.delete('/api/products/:id', async (req, res) => {
+router.delete('/products/:id', async (req, res) => {
   try {
     const { id } = req.params;
     let allProducts = await getProducts();
@@ -317,7 +314,6 @@ app.delete('/api/products/:id', async (req, res) => {
     allProducts.splice(index, 1);
     globalProductsCache = allProducts;
 
-    // Tentar deletar pasta do disco local
     try {
       const safeId = path.basename(id);
       const productFolder = path.join(UPLOADS_DIR, safeId);
@@ -333,5 +329,9 @@ app.delete('/api/products/:id', async (req, res) => {
     return res.status(500).json({ error: 'Erro ao deletar produto.' });
   }
 });
+
+// Montar rotas sob /api e raiz
+app.use('/api', router);
+app.use('/', router);
 
 module.exports = app;

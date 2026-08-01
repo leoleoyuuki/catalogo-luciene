@@ -3,21 +3,18 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs').promises;
 const os = require('os');
+const { put, list } = require('@vercel/blob');
 
 const app = express();
 const PORT = process.env.PORT || 3005;
 
-// Chave da API do FreeImage.host
 const FREEIMAGE_API_KEY = '6d207e02198a847aa98d0a2a901485a5';
 
-// Configuração de diretórios
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
-// Cache em memória para performance ultrarrápida (0ms I/O)
 let productsCache = null;
 
-// Garantir que as pastas locais existem
 async function initDirs() {
   try {
     await fs.mkdir(UPLOADS_DIR, { recursive: true });
@@ -28,16 +25,14 @@ async function initDirs() {
 }
 initDirs();
 
-// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(PUBLIC_DIR));
 app.use('/uploads', express.static(UPLOADS_DIR));
 
-// Armazenamento em memória com multer
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 } // 10MB
+  limits: { fileSize: 10 * 1024 * 1024 }
 });
 
 function slugify(text) {
@@ -81,9 +76,47 @@ async function uploadToFreeImageHost(buffer, filename, mimetype) {
   }
 }
 
-// Obter produtos com Cache em memória
+async function getProductsFromBlob() {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) return null;
+  try {
+    const { blobs } = await list({ prefix: 'products.json' });
+    if (blobs && blobs.length > 0) {
+      const res = await fetch(`${blobs[0].url}?t=${Date.now()}`);
+      if (res.status === 200) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          return data;
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Erro ao ler Vercel Blob:', e.message);
+  }
+  return null;
+}
+
+async function saveProductsToBlob(products) {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) return;
+  try {
+    await put('products.json', JSON.stringify(products, null, 2), {
+      access: 'public',
+      contentType: 'application/json',
+      addRandomSuffix: false,
+      allowOverwrite: true
+    });
+  } catch (e) {
+    console.error('Erro ao salvar Vercel Blob:', e.message);
+  }
+}
+
 async function getCachedProducts(forceRefresh = false) {
   if (productsCache !== null && !forceRefresh) {
+    return productsCache;
+  }
+
+  const blobData = await getProductsFromBlob();
+  if (blobData && Array.isArray(blobData) && blobData.length > 0) {
+    productsCache = blobData;
     return productsCache;
   }
 
@@ -92,11 +125,10 @@ async function getCachedProducts(forceRefresh = false) {
 
   for (const item of items) {
     const itemPath = path.join(UPLOADS_DIR, item);
-    const stat = await fs.stat(itemPath);
-
-    if (stat.isDirectory()) {
-      const metadataPath = path.join(itemPath, 'metadata.json');
-      try {
+    try {
+      const stat = await fs.stat(itemPath);
+      if (stat.isDirectory()) {
+        const metadataPath = path.join(itemPath, 'metadata.json');
         await fs.access(metadataPath);
         const dataStr = await fs.readFile(metadataPath, 'utf8');
         const product = JSON.parse(dataStr);
@@ -104,9 +136,9 @@ async function getCachedProducts(forceRefresh = false) {
           product.status = 'in_stock';
         }
         products.push(product);
-      } catch (e) {
-        // Ignora pastas sem metadata.json
       }
+    } catch (e) {
+      // Ignora pastas sem metadata.json
     }
   }
 
@@ -117,22 +149,25 @@ async function getCachedProducts(forceRefresh = false) {
       const seedProducts = JSON.parse(seedStr);
       products.push(...seedProducts);
     } catch (e) {
-      // Nenhum seed encontrado
+      //
     }
   }
 
-  // Ordenar por data decrescente
   products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   productsCache = products;
+
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    await saveProductsToBlob(productsCache);
+  }
+
   return productsCache;
 }
 
-// Invalida a cache em memória
 function invalidateCache() {
   productsCache = null;
 }
 
-// 1. Cadastrar Produto (Webhook / API)
+// 1. Cadastrar Produto
 app.post('/api/products', upload.single('image'), async (req, res) => {
   try {
     const { name, cost, price } = req.body;
@@ -143,7 +178,7 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
     }
 
     if (!file) {
-      return res.status(400).json({ error: 'A imagem do procedimento é obrigatória.' });
+      return res.status(400).json({ error: 'A imagem do produto é obrigatória.' });
     }
 
     const numericCost = parseFloat(cost);
@@ -154,7 +189,7 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
     }
 
     const timestamp = Date.now();
-    const slug = slugify(name) || 'procedimento';
+    const slug = slugify(name) || 'produto';
     const folderId = `${slug}-${timestamp}`;
     const productFolder = path.join(UPLOADS_DIR, folderId);
 
@@ -182,19 +217,22 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
     const metadataPath = path.join(productFolder, 'metadata.json');
     await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2), 'utf8');
 
-    // Atualizar cache
+    const current = await getCachedProducts();
+    current.unshift(metadata);
     invalidateCache();
 
-    console.log(`Procedimento cadastrado: ${metadata.name} (Pasta: ${folderId})`);
+    await saveProductsToBlob(current);
+
+    console.log(`Produto cadastrado: ${metadata.name}`);
     return res.status(201).json(metadata);
 
   } catch (err) {
     console.error('Erro ao adicionar produto:', err);
-    return res.status(500).json({ error: 'Erro interno ao salvar procedimento no computador.' });
+    return res.status(500).json({ error: 'Erro interno ao salvar produto.' });
   }
 });
 
-// 2. Listar Produtos (Admin - com Paginação de 10 em 10 e Estatísticas Globais)
+// 2. Listar Produtos
 app.get('/api/products', async (req, res) => {
   try {
     const allProducts = await getCachedProducts();
@@ -203,7 +241,6 @@ app.get('/api/products', async (req, res) => {
     const search = (req.query.search || '').toLowerCase().trim();
     const isAll = req.query.all === 'true';
 
-    // Filtrar se houver busca
     const filtered = search ? allProducts.filter(p => p.name.toLowerCase().includes(search)) : allProducts;
 
     if (isAll) {
@@ -213,7 +250,6 @@ app.get('/api/products', async (req, res) => {
     const startIndex = (page - 1) * limit;
     const pagedProducts = filtered.slice(startIndex, startIndex + limit);
 
-    // Calcular estatísticas globais
     const stockItems = allProducts.filter(p => p.status !== 'sold');
     const soldItems = allProducts.filter(p => p.status === 'sold');
 
@@ -251,7 +287,7 @@ app.get('/api/products', async (req, res) => {
   }
 });
 
-// 3. Listar Produtos Públicos (Somente em estoque, paginados de 10 em 10, SEM CUSTO)
+// 3. Listar Produtos Públicos
 app.get('/api/products/public', async (req, res) => {
   try {
     const allProducts = await getCachedProducts();
@@ -293,24 +329,18 @@ app.get('/api/products/public', async (req, res) => {
   }
 });
 
-// 4. Abater Estoque / Dar Baixa (Vender Produto)
+// 4. Abater Estoque (Vender Produto)
 app.post('/api/products/:id/sell', async (req, res) => {
   try {
     const { id } = req.params;
     const { soldPrice } = req.body;
 
-    const safeId = path.basename(id);
-    const productFolder = path.join(UPLOADS_DIR, safeId);
-    const metadataPath = path.join(productFolder, 'metadata.json');
+    const allProducts = await getCachedProducts();
+    const product = allProducts.find(p => p.id === id);
 
-    try {
-      await fs.access(metadataPath);
-    } catch {
+    if (!product) {
       return res.status(404).json({ error: 'Produto não encontrado.' });
     }
-
-    const dataStr = await fs.readFile(metadataPath, 'utf8');
-    const product = JSON.parse(dataStr);
 
     const numericSoldPrice = parseFloat(soldPrice);
     const finalPrice = !isNaN(numericSoldPrice) && numericSoldPrice >= 0 ? numericSoldPrice : product.price;
@@ -319,16 +349,22 @@ app.post('/api/products/:id/sell', async (req, res) => {
     product.soldPrice = finalPrice;
     product.soldAt = new Date().toISOString();
 
-    await fs.writeFile(metadataPath, JSON.stringify(product, null, 2), 'utf8');
+    try {
+      const safeId = path.basename(id);
+      const metadataPath = path.join(UPLOADS_DIR, safeId, 'metadata.json');
+      await fs.writeFile(metadataPath, JSON.stringify(product, null, 2), 'utf8');
+    } catch (e) {
+      //
+    }
 
-    // Invalida a cache em memória
     invalidateCache();
+    await saveProductsToBlob(allProducts);
 
     console.log(`Baixa efetuada: "${product.name}" por R$ ${finalPrice}`);
     return res.json(product);
   } catch (err) {
     console.error('Erro ao dar baixa em produto:', err);
-    return res.status(500).json({ error: 'Erro ao efetuar baixa do estoque.' });
+    return res.status(500).json({ error: 'Erro ao efetuar baixa.' });
   }
 });
 
@@ -336,21 +372,27 @@ app.post('/api/products/:id/sell', async (req, res) => {
 app.delete('/api/products/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const safeId = path.basename(id);
-    const productFolder = path.join(UPLOADS_DIR, safeId);
+    let allProducts = await getCachedProducts();
 
-    try {
-      await fs.access(productFolder);
-    } catch {
+    const index = allProducts.findIndex(p => p.id === id);
+    if (index === -1) {
       return res.status(404).json({ error: 'Produto não encontrado.' });
     }
 
-    await fs.rm(productFolder, { recursive: true, force: true });
-    
-    // Invalida a cache em memória
+    allProducts.splice(index, 1);
     invalidateCache();
 
-    console.log(`Produto deletado: ${safeId}`);
+    try {
+      const safeId = path.basename(id);
+      const productFolder = path.join(UPLOADS_DIR, safeId);
+      await fs.rm(productFolder, { recursive: true, force: true });
+    } catch (e) {
+      //
+    }
+
+    await saveProductsToBlob(allProducts);
+
+    console.log(`Produto deletado: ${id}`);
     return res.json({ success: true, message: 'Produto e pasta excluídos com sucesso.' });
   } catch (err) {
     console.error('Erro ao deletar produto:', err);
@@ -373,19 +415,8 @@ function getLocalIPs() {
 
 app.listen(PORT, () => {
   console.log(`\n======================================================`);
-  console.log(`  Servidor Lulu Estética (Otimizado + Cache) rodando!`);
+  console.log(`  Servidor Lulu Estética (Vercel Blob Storage Ativo) rodando!`);
   console.log(`  Catálogo Público: http://localhost:${PORT}/index.html`);
   console.log(`  Painel Admin:     http://localhost:${PORT}/admin.html`);
-  
-  const localIPs = getLocalIPs();
-  if (localIPs.length > 0) {
-    console.log(`\n  Acesse no seu celular pela rede Wi-Fi local:`);
-    localIPs.forEach(ip => {
-      console.log(`  👉 Público: http://${ip}:${PORT}/index.html`);
-      console.log(`  👉 Admin:   http://${ip}:${PORT}/admin.html`);
-    });
-  }
-  
-  console.log(`\n  Para compartilhar na Internet: npm run share`);
   console.log(`======================================================\n`);
 });

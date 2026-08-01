@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs').promises;
+const { put, list } = require('@vercel/blob');
 
 const app = express();
 const router = express.Router();
@@ -9,7 +10,7 @@ const router = express.Router();
 const FREEIMAGE_API_KEY = '6d207e02198a847aa98d0a2a901485a5';
 const UPLOADS_DIR = path.join(__dirname, '..', 'uploads');
 
-// Armazenamento em memória global para persistência serverless
+// Armazenamento em memória global para acelerar respostas
 let globalProductsCache = null;
 
 app.use(express.json());
@@ -61,12 +62,59 @@ async function uploadToFreeImageHost(buffer, filename, mimetype) {
   }
 }
 
+// Ler produtos do Vercel Blob Storage (100% Gratuito)
+async function getProductsFromBlob() {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) return null;
+  try {
+    const { blobs } = await list({ prefix: 'products.json' });
+    if (blobs && blobs.length > 0) {
+      const res = await fetch(`${blobs[0].url}?t=${Date.now()}`);
+      if (res.status === 200) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          console.log(`Lendo ${data.length} produtos do Vercel Blob Storage.`);
+          return data;
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Erro ao ler Vercel Blob:', e.message);
+  }
+  return null;
+}
+
+// Salvar produtos no Vercel Blob Storage (100% Gratuito)
+async function saveProductsToBlob(products) {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) return;
+  try {
+    await put('products.json', JSON.stringify(products, null, 2), {
+      access: 'public',
+      contentType: 'application/json',
+      addRandomSuffix: false,
+      allowOverwrite: true
+    });
+    console.log('Estado salvo no Vercel Blob Storage com sucesso!');
+  } catch (e) {
+    console.error('Erro ao salvar no Vercel Blob:', e.message);
+  }
+}
+
+// Obter produtos (Vercel Blob -> Disco Local -> Seed Fallback)
 async function getProducts() {
   if (globalProductsCache !== null) {
     return globalProductsCache;
   }
 
+  // 1. Tentar ler do Vercel Blob Storage se o token estiver presente
+  const blobData = await getProductsFromBlob();
+  if (blobData && Array.isArray(blobData) && blobData.length > 0) {
+    globalProductsCache = blobData;
+    return globalProductsCache;
+  }
+
   const products = [];
+
+  // 2. Tentar ler das pastas locais do disco
   try {
     const items = await fs.readdir(UPLOADS_DIR);
     for (const item of items) {
@@ -81,14 +129,14 @@ async function getProducts() {
           products.push(product);
         }
       } catch (e) {
-        // Ignora erros de leitura de pastas individuais
+        // Ignora erros locais
       }
     }
   } catch (e) {
     // Pasta uploads não existe no Vercel
   }
 
-  // Se não houver produtos no disco, carrega os 71 produtos do seed-products.json
+  // 3. Fallback de seed inicial (71 produtos)
   if (products.length === 0) {
     try {
       const seedPath = path.join(__dirname, '..', 'seed-products.json');
@@ -96,12 +144,18 @@ async function getProducts() {
       const seedProducts = JSON.parse(seedStr);
       products.push(...seedProducts);
     } catch (e) {
-      // Nenhum seed encontrado
+      //
     }
   }
 
   products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   globalProductsCache = products;
+
+  // Persistir no Vercel Blob para os próximos deploys
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    await saveProductsToBlob(globalProductsCache);
+  }
+
   return globalProductsCache;
 }
 
@@ -152,12 +206,15 @@ router.post('/products', upload.single('image'), async (req, res) => {
       await fs.writeFile(path.join(productFolder, imageFilename), file.buffer);
       await fs.writeFile(path.join(productFolder, 'metadata.json'), JSON.stringify(metadata, null, 2), 'utf8');
     } catch (e) {
-      // Ignora falhas de disco no Vercel
+      // Ignora no Vercel
     }
 
     const current = await getProducts();
     current.unshift(metadata);
     globalProductsCache = current;
+
+    // Persistir estado no Vercel Blob Storage
+    await saveProductsToBlob(globalProductsCache);
 
     console.log(`Produto cadastrado: ${metadata.name}`);
     return res.status(201).json(metadata);
@@ -289,8 +346,11 @@ router.post('/products/:id/sell', async (req, res) => {
       const metadataPath = path.join(UPLOADS_DIR, safeId, 'metadata.json');
       await fs.writeFile(metadataPath, JSON.stringify(product, null, 2), 'utf8');
     } catch (e) {
-      // Ignora erros no Vercel
+      // Ignora no Vercel
     }
+
+    // Persistir estado no Vercel Blob Storage
+    await saveProductsToBlob(allProducts);
 
     console.log(`Baixa efetuada: "${product.name}" por R$ ${finalPrice}`);
     return res.json(product);
@@ -319,8 +379,11 @@ router.delete('/products/:id', async (req, res) => {
       const productFolder = path.join(UPLOADS_DIR, safeId);
       await fs.rm(productFolder, { recursive: true, force: true });
     } catch (e) {
-      // Ignora erros no Vercel
+      // Ignora no Vercel
     }
+
+    // Persistir estado no Vercel Blob Storage
+    await saveProductsToBlob(allProducts);
 
     console.log(`Produto deletado: ${id}`);
     return res.json({ success: true, message: 'Produto removido com sucesso.' });
@@ -330,7 +393,6 @@ router.delete('/products/:id', async (req, res) => {
   }
 });
 
-// Montar rotas sob /api e raiz
 app.use('/api', router);
 app.use('/', router);
 

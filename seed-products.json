@@ -4,8 +4,9 @@
     "name": "Uber",
     "cost": 20,
     "price": 0,
-    "image": "/uploads/uber-1785466578925/image.jpg",
+    "image": "https://iili.io/CSeRXs4.jpg",
     "createdAt": "2026-07-31T02:56:18.929Z",
+    "imageUrl": "https://iili.io/CSeRXs4.jpg",
     "status": "in_stock"
   },
   {
@@ -13,8 +14,9 @@
     "name": "Mala",
     "cost": 110,
     "price": 0,
-    "image": "/uploads/mala-1785466194470/image.jpg",
+    "image": "https://iili.io/CSeuCLQ.jpg",
     "createdAt": "2026-07-31T02:49:54.472Z",
+    "imageUrl": "https://iili.io/CSeuCLQ.jpg",
     "status": "in_stock"
   },
   {
@@ -22,8 +24,9 @@
     "name": "Uber",
     "cost": 10,
     "price": 0,
-    "image": "/uploads/uber-1785465634317/image.jpg",
+    "image": "https://iili.io/CSeRVzG.jpg",
     "createdAt": "2026-07-31T02:40:34.320Z",
+    "imageUrl": "https://iili.io/CSeRVzG.jpg",
     "status": "in_stock"
   },
   {
@@ -31,8 +34,9 @@
     "name": "Alimentação",
     "cost": 200,
     "price": 0,
-    "image": "/uploads/alimentacao-1785465583722/image.jpg",
+    "image": "https://iili.io/CSeTWWQ.jpg",
     "createdAt": "2026-07-31T02:39:43.727Z",
+    "imageUrl": "https://iili.io/CSeTWWQ.jpg",
     "status": "in_stock"
   },
   {
@@ -40,8 +44,9 @@
     "name": "Hotel",
     "cost": 290,
     "price": 0,
-    "image": "/uploads/hotel-1785465557307/image.jpg",
+    "image": "https://iili.io/CSeTmX4.jpg",
     "createdAt": "2026-07-31T02:39:17.313Z",
+    "imageUrl": "https://iili.io/CSeTmX4.jpg",
     "status": "in_stock"
   },
   {
@@ -49,8 +54,9 @@
     "name": "Passagem",
     "cost": 1100,
     "price": 0,
-    "image": "/uploads/passagem-1785465540290/image.jpg",
+    "image": "https://iili.io/CSeA9wJ.jpg",
     "createdAt": "2026-07-31T02:39:00.291Z",
+    "imageUrl": "https://iili.io/CSeA9wJ.jpg",
     "status": "in_stock"
   },
   {
@@ -58,8 +64,9 @@
     "name": "Base",
     "cost": 0,
     "price": 150,
-    "image": "/uploads/base-1785465085181/image.jpg",
+    "image": "https://iili.io/CSeTedF.jpg",
     "createdAt": "2026-07-31T02:31:25.184Z",
+    "imageUrl": "https://iili.io/CSeTedF.jpg",
     "status": "in_stock"
   },
   {
@@ -67,8 +74,9 @@
     "name": "Lifiting facial - Numbuzin",
     "cost": 153.7,
     "price": 220,
-    "image": "/uploads/lifiting-facial-numbuzin-1785465011422/image.jpg",
+    "image": "https://iili.io/CSeuFku.jpg",
     "createdAt": "2026-07-31T02:30:11.424Z",
+    "imageUrl": "https://iili.io/CSeuFku.jpg",
     "status": "in_stock"
   },
   {
@@ -76,8 +84,9 @@
     "name": "Tônico hidratante - DR althea",
     "cost": 127.2,
     "price": 200,
-    "image": "/uploads/tonico-hidratante-dr-althea-1785464855272/image.jpg",
+    "image": "https://iili.io/CSeAyU7.jpg",
     "createdAt": "2026-07-31T02:27:35.278Z",
+    "imageUrl": "https://iili.io/CSeAyU7.jpg",
     "status": "in_stock"
   },
   {
@@ -85,8 +94,9 @@
     "name": "Presente - Rosana",
     "cost": 63.35,
     "price": 63.35,
-    "image": "/uploads/presente-rosana-1785464722734/image.jpg",
+    "image": "https://iili.io/CSeAq8X.jpg",
     "createdAt": "2026-07-31T02:25:22.739Z",
+    "imageUrl": "https://iili.io/CSeAq8X.jpg",
     "status": "in_stock"
   },
   {
@@ -94,8 +104,9 @@
     "name": "Máscara presente jaqueline",
     "cost": 95.3,
     "price": 95.3,
-    "image": "/uploads/mascara-presente-jaqueline-1785464634994/image.jpg",
+    "image": "https://iili.io/CSeu6jj.jpg",
     "createdAt": "2026-07-31T02:23:54.996Z",
+    "imageUrl": "https://iili.io/CSeu6jj.jpg",
     "status": "in_stock"
   },
   {
@@ -103,8 +114,9 @@
     "name": "Pdrn volume fit",
     "cost": 106,
     "price": 190,
-    "image": "/uploads/pdrn-volume-fit-1785464453333/image.jpg",
+    "image": "https://iili.io/CSeA2Gp.jpg",
     "createdAt": "2026-07-31T02:20:53.335Z",
+    "imageUrl": "https://iili.io/CSeA2Gp.jpg",
     "status": "in_stock"
   },
   {
@@ -112,8 +124,9 @@
     "name": "Lip mask - alessandra",
     "cost": 106,
     "price": 143.37,
-    "image": "/uploads/lip-mask-alessandra-1785464382390/image.jpg",
+    "image": "https://iili.io/CSeuKmb.jpg",
     "createdAt": "2026-07-31T02:19:42.392Z",
+    "imageUrl": "https://iili.io/CSeuKmb.jpg",
     "status": "in_stock"
   },
   {
@@ -121,8 +134,9 @@
     "name": "Blanc cover - jose",
     "cost": 159,
     "price": 250,
-    "image": "/uploads/blanc-cover-jose-1785464247180/image.jpg",
+    "image": "https://iili.io/CSeT8mJ.jpg",
     "createdAt": "2026-07-31T02:17:27.185Z",
+    "imageUrl": "https://iili.io/CSeT8mJ.jpg",
     "status": "in_stock"
   },
   {
@@ -130,8 +144,9 @@
     "name": "Regen capilar - Carol",
     "cost": 169.6,
     "price": 249.1,
-    "image": "/uploads/regen-capilar-carol-1785464169970/image.jpg",
+    "image": "https://iili.io/CSeAEox.jpg",
     "createdAt": "2026-07-31T02:16:09.973Z",
+    "imageUrl": "https://iili.io/CSeAEox.jpg",
     "status": "in_stock"
   },
   {
@@ -139,8 +154,9 @@
     "name": "Pdrn lip - Carol",
     "cost": 95.4,
     "price": 124,
-    "image": "/uploads/pdrn-lip-carol-1785464109079/image.jpg",
+    "image": "https://iili.io/CSeAdnR.jpg",
     "createdAt": "2026-07-31T02:15:09.082Z",
+    "imageUrl": "https://iili.io/CSeAdnR.jpg",
     "status": "in_stock"
   },
   {
@@ -148,8 +164,9 @@
     "name": "Máscara fino - Carol",
     "cost": 95.5,
     "price": 132.5,
-    "image": "/uploads/mascara-fino-carol-1785464029467/image.jpg",
+    "image": "https://iili.io/CSeueG2.jpg",
     "createdAt": "2026-07-31T02:13:49.470Z",
+    "imageUrl": "https://iili.io/CSeueG2.jpg",
     "status": "in_stock"
   },
   {
@@ -157,8 +174,9 @@
     "name": "Serum - Carol",
     "cost": 79.5,
     "price": 127.2,
-    "image": "/uploads/serum-carol-1785463984050/image.jpg",
+    "image": "https://iili.io/CSeAhS1.jpg",
     "createdAt": "2026-07-31T02:13:04.053Z",
+    "imageUrl": "https://iili.io/CSeAhS1.jpg",
     "status": "in_stock"
   },
   {
@@ -166,8 +184,9 @@
     "name": "Skinbooster - Carol",
     "cost": 386.9,
     "price": 524,
-    "image": "/uploads/skinbooster-carol-1785463856851/image.jpg",
+    "image": "https://iili.io/CSeAPHX.jpg",
     "createdAt": "2026-07-31T02:10:56.853Z",
+    "imageUrl": "https://iili.io/CSeAPHX.jpg",
     "status": "in_stock"
   },
   {
@@ -175,8 +194,9 @@
     "name": "Uso Lulu - extração de cravo",
     "cost": 53,
     "price": 0,
-    "image": "/uploads/uso-lulu-extracao-de-cravo-1785463788721/image.jpg",
+    "image": "https://iili.io/CSeR6qQ.jpg",
     "createdAt": "2026-07-31T02:09:48.724Z",
+    "imageUrl": "https://iili.io/CSeR6qQ.jpg",
     "status": "in_stock"
   },
   {
@@ -184,8 +204,9 @@
     "name": "Skin booster - Uso Lulu",
     "cost": 386,
     "price": 0,
-    "image": "/uploads/skin-booster-uso-lulu-1785463757142/image.jpg",
+    "image": "https://iili.io/CSeArlI.jpg",
     "createdAt": "2026-07-31T02:09:17.144Z",
+    "imageUrl": "https://iili.io/CSeArlI.jpg",
     "status": "in_stock"
   },
   {
@@ -193,8 +214,9 @@
     "name": "Escovas de dente curaprox 3un",
     "cost": 56,
     "price": 0,
-    "image": "/uploads/escovas-de-dente-curaprox-3un-1785463624079/image.jpg",
+    "image": "https://iili.io/CSeTgXR.jpg",
     "createdAt": "2026-07-31T02:07:04.082Z",
+    "imageUrl": "https://iili.io/CSeTgXR.jpg",
     "status": "in_stock"
   },
   {
@@ -202,8 +224,9 @@
     "name": "tônico facial coreano formulado para hidratação, firmeza e redução de rugas.",
     "cost": 90,
     "price": 170,
-    "image": "/uploads/tonico-facial-coreano-formulado-para-hidratacao-firmeza-e-reducao-de-rugas-1785463536109/image.jpg",
+    "image": "https://iili.io/CSeADil.jpg",
     "createdAt": "2026-07-31T02:05:36.112Z",
+    "imageUrl": "https://iili.io/CSeADil.jpg",
     "status": "in_stock"
   },
   {
@@ -211,8 +234,9 @@
     "name": "Tratamento queda capilar",
     "cost": 58.3,
     "price": 116,
-    "image": "/uploads/tratamento-queda-capilar-1785463374355/image.jpg",
+    "image": "https://iili.io/CSeREen.jpg",
     "createdAt": "2026-07-31T02:02:54.358Z",
+    "imageUrl": "https://iili.io/CSeREen.jpg",
     "status": "in_stock"
   },
   {
@@ -220,8 +244,9 @@
     "name": "Tratamento queda capilar",
     "cost": 58.3,
     "price": 116,
-    "image": "/uploads/tratamento-queda-capilar-1785463340229/image.jpg",
+    "image": "https://iili.io/CSeR0Jt.jpg",
     "createdAt": "2026-07-31T02:02:20.232Z",
+    "imageUrl": "https://iili.io/CSeR0Jt.jpg",
     "status": "in_stock"
   },
   {
@@ -229,8 +254,9 @@
     "name": "Lencinho uso Lulu",
     "cost": 15.9,
     "price": 0,
-    "image": "/uploads/lencinho-uso-lulu-1785463297831/image.jpg",
+    "image": "https://iili.io/CSeu37e.jpg",
     "createdAt": "2026-07-31T02:01:37.834Z",
+    "imageUrl": "https://iili.io/CSeu37e.jpg",
     "status": "in_stock"
   },
   {
@@ -238,8 +264,9 @@
     "name": "Lanbrancinhas",
     "cost": 127.2,
     "price": 0,
-    "image": "/uploads/lanbrancinhas-1785463262490/image.jpg",
+    "image": "https://iili.io/CSeTpLl.jpg",
     "createdAt": "2026-07-31T02:01:02.493Z",
+    "imageUrl": "https://iili.io/CSeTpLl.jpg",
     "status": "in_stock"
   },
   {
@@ -247,8 +274,9 @@
     "name": "Uso Lulu",
     "cost": 212,
     "price": 0,
-    "image": "/uploads/uso-lulu-1785463162115/image.jpg",
+    "image": "https://iili.io/CSeRgXj.jpg",
     "createdAt": "2026-07-31T01:59:22.119Z",
+    "imageUrl": "https://iili.io/CSeRgXj.jpg",
     "status": "in_stock"
   },
   {
@@ -256,8 +284,9 @@
     "name": "Bandaid",
     "cost": 14.9,
     "price": 0,
-    "image": "/uploads/bandaid-1785463139866/image.jpg",
+    "image": "https://iili.io/CSeTjqB.jpg",
     "createdAt": "2026-07-31T01:58:59.868Z",
+    "imageUrl": "https://iili.io/CSeTjqB.jpg",
     "status": "in_stock"
   },
   {
@@ -265,8 +294,9 @@
     "name": "Usar tratamento",
     "cost": 31.8,
     "price": 0,
-    "image": "/uploads/usar-tratamento-1785463074974/image.jpg",
+    "image": "https://iili.io/CSeRUzb.jpg",
     "createdAt": "2026-07-31T01:57:54.977Z",
+    "imageUrl": "https://iili.io/CSeRUzb.jpg",
     "status": "in_stock"
   },
   {
@@ -274,8 +304,9 @@
     "name": "Tratamento queda capilar",
     "cost": 169.6,
     "price": 255,
-    "image": "/uploads/tratamento-queda-capilar-1785463044057/image.jpg",
+    "image": "https://iili.io/CSeRAzJ.jpg",
     "createdAt": "2026-07-31T01:57:24.060Z",
+    "imageUrl": "https://iili.io/CSeRAzJ.jpg",
     "status": "in_stock"
   },
   {
@@ -283,8 +314,9 @@
     "name": "Serum livrinho instantâneo",
     "cost": 90,
     "price": 180,
-    "image": "/uploads/serum-livrinho-instantaneo-1785462885649/image.jpg",
+    "image": "https://iili.io/CSeAONa.jpg",
     "createdAt": "2026-07-31T01:54:45.653Z",
+    "imageUrl": "https://iili.io/CSeAONa.jpg",
     "status": "in_stock"
   },
   {
@@ -292,8 +324,9 @@
     "name": "Suplemento pai e mãe",
     "cost": 212,
     "price": 0,
-    "image": "/uploads/suplemento-pai-e-mae-1785462623940/image.jpg",
+    "image": "https://iili.io/CSeAsNs.jpg",
     "createdAt": "2026-07-31T01:50:23.943Z",
+    "imageUrl": "https://iili.io/CSeAsNs.jpg",
     "status": "in_stock"
   },
   {
@@ -301,8 +334,9 @@
     "name": "Perfume Lulu",
     "cost": 449,
     "price": 0,
-    "image": "/uploads/perfume-lulu-1785462563691/image.jpg",
+    "image": "https://iili.io/CSeAKFI.jpg",
     "createdAt": "2026-07-31T01:49:23.692Z",
+    "imageUrl": "https://iili.io/CSeAKFI.jpg",
     "status": "in_stock"
   },
   {
@@ -310,8 +344,9 @@
     "name": "Gloss labial p/ volume e tratamento",
     "cost": 106,
     "price": 144,
-    "image": "/uploads/gloss-labial-p-volume-e-tratamento-1785462379929/image.jpg",
+    "image": "https://iili.io/CSeTP1I.jpg",
     "createdAt": "2026-07-31T01:46:19.933Z",
+    "imageUrl": "https://iili.io/CSeTP1I.jpg",
     "status": "in_stock"
   },
   {
@@ -319,8 +354,9 @@
     "name": "Hidratante em pó anti-oleosidade",
     "cost": 56,
     "price": 117,
-    "image": "/uploads/hidratante-em-po-anti-oleosidade-1785462262176/image.jpg",
+    "image": "https://iili.io/CSeTQ7n.jpg",
     "createdAt": "2026-07-31T01:44:22.179Z",
+    "imageUrl": "https://iili.io/CSeTQ7n.jpg",
     "status": "in_stock"
   },
   {
@@ -328,8 +364,9 @@
     "name": "Usar para tratamento",
     "cost": 132,
     "price": 0,
-    "image": "/uploads/usar-para-tratamento-1785462092588/image.jpg",
+    "image": "https://iili.io/CSeRvee.jpg",
     "createdAt": "2026-07-31T01:41:32.590Z",
+    "imageUrl": "https://iili.io/CSeRvee.jpg",
     "status": "in_stock"
   },
   {
@@ -337,8 +374,9 @@
     "name": "Tratamento p/ área dos olhos (volume e mancha)",
     "cost": 106,
     "price": 200,
-    "image": "/uploads/tratamento-p-area-dos-olhos-volume-e-mancha-1785461998196/image.jpg",
+    "image": "https://iili.io/CSeRKWx.jpg",
     "createdAt": "2026-07-31T01:39:58.202Z",
+    "imageUrl": "https://iili.io/CSeRKWx.jpg",
     "status": "in_stock"
   },
   {
@@ -346,8 +384,9 @@
     "name": "Usar para tratamento",
     "cost": 233.2,
     "price": 0,
-    "image": "/uploads/usar-para-tratamento-1785461882833/image.jpg",
+    "image": "https://iili.io/CSeRk79.jpg",
     "createdAt": "2026-07-31T01:38:02.836Z",
+    "imageUrl": "https://iili.io/CSeRk79.jpg",
     "status": "in_stock"
   },
   {
@@ -355,8 +394,9 @@
     "name": "Usar para microagulhamento",
     "cost": 180.2,
     "price": 0,
-    "image": "/uploads/usar-para-microagulhamento-1785461748814/image.jpg",
+    "image": "https://iili.io/CSeRjql.jpg",
     "createdAt": "2026-07-31T01:35:48.816Z",
+    "imageUrl": "https://iili.io/CSeRjql.jpg",
     "status": "in_stock"
   },
   {
@@ -364,8 +404,9 @@
     "name": "Aparelho capilar",
     "cost": 795,
     "price": 0,
-    "image": "/uploads/aparelho-capilar-1785461557420/image.jpg",
+    "image": "https://iili.io/CSeTXsV.jpg",
     "createdAt": "2026-07-31T01:32:37.422Z",
+    "imageUrl": "https://iili.io/CSeTXsV.jpg",
     "status": "in_stock"
   },
   {
@@ -373,8 +414,9 @@
     "name": "Tratamento p/ marcas de expressão",
     "cost": 153.7,
     "price": 220,
-    "image": "/uploads/tratamento-p-marcas-de-expressao-1785461491455/image.jpg",
+    "image": "https://iili.io/CSeRC0B.jpg",
     "createdAt": "2026-07-31T01:31:31.458Z",
+    "imageUrl": "https://iili.io/CSeRC0B.jpg",
     "status": "in_stock"
   },
   {
@@ -382,8 +424,9 @@
     "name": "Tratamento capilar",
     "cost": 0,
     "price": 160,
-    "image": "/uploads/tratamento-capilar-1785461381513/image.jpg",
+    "image": "https://iili.io/CSeRFxj.jpg",
     "createdAt": "2026-07-31T01:29:41.515Z",
+    "imageUrl": "https://iili.io/CSeRFxj.jpg",
     "status": "in_stock"
   },
   {
@@ -391,8 +434,9 @@
     "name": "Tratamento p/ cabelo fino",
     "cost": 95.4,
     "price": 170,
-    "image": "/uploads/tratamento-p-cabelo-fino-1785461183369/image.jpg",
+    "image": "https://iili.io/CSeRBfV.jpg",
     "createdAt": "2026-07-31T01:26:23.372Z",
+    "imageUrl": "https://iili.io/CSeRBfV.jpg",
     "status": "in_stock"
   },
   {
@@ -400,8 +444,9 @@
     "name": "Shampoo e Condicionador - MISE en SCENE",
     "cost": 212,
     "price": 350,
-    "image": "/uploads/shampoo-e-condicionador-mise-en-scene-1785460934874/image.jpg",
+    "image": "https://iili.io/CSeASPp.jpg",
     "createdAt": "2026-07-31T01:22:14.877Z",
+    "imageUrl": "https://iili.io/CSeASPp.jpg",
     "status": "in_stock"
   },
   {
@@ -409,8 +454,9 @@
     "name": "Sérum capilar - FINO",
     "cost": 79.5,
     "price": 160,
-    "image": "/uploads/serum-capilar-fino-1785460718550/image.jpeg",
+    "image": "https://iili.io/CSeAWKB.jpg",
     "createdAt": "2026-07-31T01:18:38.553Z",
+    "imageUrl": "https://iili.io/CSeAWKB.jpg",
     "status": "in_stock"
   },
   {
@@ -418,8 +464,9 @@
     "name": "Óleo capilar - FINO",
     "cost": 79.5,
     "price": 140,
-    "image": "/uploads/oleo-capilar-fino-1785460675536/image.jpeg",
+    "image": "https://iili.io/CSeumyg.jpg",
     "createdAt": "2026-07-31T01:17:55.538Z",
+    "imageUrl": "https://iili.io/CSeumyg.jpg",
     "status": "in_stock"
   },
   {
@@ -427,8 +474,9 @@
     "name": "Melhora linhas de expressão",
     "cost": 116.6,
     "price": 174.9,
-    "image": "/uploads/melhora-linhas-de-expressao-1785460442749/image.jpg",
+    "image": "https://iili.io/CSeuDa1.jpg",
     "createdAt": "2026-07-31T01:14:02.752Z",
+    "imageUrl": "https://iili.io/CSeuDa1.jpg",
     "status": "in_stock"
   },
   {
@@ -436,8 +484,9 @@
     "name": "Máscara tratamento p/ melasma",
     "cost": 32,
     "price": 40,
-    "image": "/uploads/mascara-tratamento-p-melasma-1785460245205/image.jpg",
+    "image": "https://iili.io/CSeuQ6B.jpg",
     "createdAt": "2026-07-31T01:10:45.208Z",
+    "imageUrl": "https://iili.io/CSeuQ6B.jpg",
     "status": "in_stock"
   },
   {
@@ -445,8 +494,9 @@
     "name": "Máscara tratamento p/ melasma",
     "cost": 32,
     "price": 40,
-    "image": "/uploads/mascara-tratamento-p-melasma-1785460230787/image.jpg",
+    "image": "https://iili.io/CSeusCQ.jpg",
     "createdAt": "2026-07-31T01:10:30.789Z",
+    "imageUrl": "https://iili.io/CSeusCQ.jpg",
     "status": "in_stock"
   },
   {
@@ -454,8 +504,9 @@
     "name": "Shampoo a seco - Bed Head",
     "cost": 30,
     "price": 60,
-    "image": "/uploads/shampoo-a-seco-bed-head-1785460092689/image.jpg",
+    "image": "https://iili.io/CSeAvov.jpg",
     "createdAt": "2026-07-31T01:08:12.691Z",
+    "imageUrl": "https://iili.io/CSeAvov.jpg",
     "status": "in_stock"
   },
   {
@@ -463,8 +514,9 @@
     "name": "Máscara de cabelo - FINO",
     "cost": 95.5,
     "price": 140,
-    "image": "/uploads/mascara-de-cabelo-fino-1785459728443/image.jpeg",
+    "image": "https://iili.io/CSeu7TJ.jpg",
     "createdAt": "2026-07-31T01:02:08.446Z",
+    "imageUrl": "https://iili.io/CSeu7TJ.jpg",
     "status": "in_stock"
   },
   {
@@ -472,8 +524,9 @@
     "name": "Hidratante e regeneração facial",
     "cost": 53,
     "price": 106,
-    "image": "/uploads/hidratante-e-regeneracao-facial-1785459510482/image.jpeg",
+    "image": "https://iili.io/CSeTLdX.jpg",
     "createdAt": "2026-07-31T00:58:30.485Z",
+    "imageUrl": "https://iili.io/CSeTLdX.jpg",
     "status": "in_stock"
   },
   {
@@ -481,8 +534,9 @@
     "name": "Firmador de bolsa do olho c/ colágeno",
     "cost": 116.6,
     "price": 163.2,
-    "image": "/uploads/firmador-de-bolsa-do-olho-c-colageno-1785459313179/image.jpg",
+    "image": "https://iili.io/CSeTrsp.jpg",
     "createdAt": "2026-07-31T00:55:13.181Z",
+    "imageUrl": "https://iili.io/CSeTrsp.jpg",
     "status": "in_stock"
   },
   {
@@ -490,8 +544,9 @@
     "name": "Adesivo de colágeno para olheira",
     "cost": 127.2,
     "price": 178.1,
-    "image": "/uploads/adesivo-de-colageno-para-olheira-1785459062790/image.jpg",
+    "image": "https://iili.io/CSeTGbj.jpg",
     "createdAt": "2026-07-31T00:51:02.793Z",
+    "imageUrl": "https://iili.io/CSeTGbj.jpg",
     "status": "in_stock"
   },
   {
@@ -499,8 +554,9 @@
     "name": "Protetor solar - Colágeno",
     "cost": 121.9,
     "price": 171,
-    "image": "/uploads/protetor-solar-colageno-1785458808390/image.jpg",
+    "image": "https://iili.io/CSeATMl.jpg",
     "createdAt": "2026-07-31T00:46:48.393Z",
+    "imageUrl": "https://iili.io/CSeATMl.jpg",
     "status": "in_stock"
   },
   {
@@ -508,8 +564,9 @@
     "name": "Protetor solar - peptídio",
     "cost": 128,
     "price": 178.8,
-    "image": "/uploads/protetor-solar-peptidio-1785458610903/image.jpeg",
+    "image": "https://iili.io/CSeAa9e.jpg",
     "createdAt": "2026-07-31T00:43:30.906Z",
+    "imageUrl": "https://iili.io/CSeAa9e.jpg",
     "status": "in_stock"
   },
   {
@@ -517,8 +574,9 @@
     "name": "Protetor solar - peptídio",
     "cost": 128,
     "price": 178.8,
-    "image": "/uploads/protetor-solar-peptidio-1785458592870/image.jpeg",
+    "image": "https://iili.io/CSeAa9e.jpg",
     "createdAt": "2026-07-31T00:43:12.873Z",
+    "imageUrl": "https://iili.io/CSeAa9e.jpg",
     "status": "in_stock"
   },
   {
@@ -526,8 +584,9 @@
     "name": "Protetor solar - peptídio",
     "cost": 128,
     "price": 178.8,
-    "image": "/uploads/protetor-solar-peptidio-1785458503796/image.jpg",
+    "image": "https://iili.io/CSeA7S9.jpg",
     "createdAt": "2026-07-31T00:41:43.798Z",
+    "imageUrl": "https://iili.io/CSeA7S9.jpg",
     "status": "in_stock"
   },
   {
@@ -535,8 +594,9 @@
     "name": "Máscara de hidratação",
     "cost": 22,
     "price": 30,
-    "image": "/uploads/mascara-de-hidratacao-1785458237053/image.jpg",
+    "image": "https://iili.io/CSeuMYX.jpg",
     "createdAt": "2026-07-31T00:37:17.055Z",
+    "imageUrl": "https://iili.io/CSeuMYX.jpg",
     "status": "in_stock"
   },
   {
@@ -544,8 +604,9 @@
     "name": "Máscara de hidratação c/ colágeno",
     "cost": 0,
     "price": 30,
-    "image": "/uploads/mascara-de-hidratacao-c-colageno-1785458169524/image.jpeg",
+    "image": "https://iili.io/CSeuVvn.jpg",
     "createdAt": "2026-07-31T00:36:09.527Z",
+    "imageUrl": "https://iili.io/CSeuVvn.jpg",
     "status": "in_stock"
   },
   {
@@ -553,8 +614,9 @@
     "name": "Máscara de hidratação c/ colágeno",
     "cost": 0,
     "price": 30,
-    "image": "/uploads/mascara-de-hidratacao-c-colageno-1785458152779/image.jpeg",
+    "image": "https://iili.io/CSeuVvn.jpg",
     "createdAt": "2026-07-31T00:35:52.782Z",
+    "imageUrl": "https://iili.io/CSeuVvn.jpg",
     "status": "in_stock"
   },
   {
@@ -562,8 +624,9 @@
     "name": "Máscara para poros",
     "cost": 0,
     "price": 25,
-    "image": "/uploads/mascara-para-poros-1785458060115/image.jpg",
+    "image": "https://iili.io/CSeugyu.jpg",
     "createdAt": "2026-07-31T00:34:20.117Z",
+    "imageUrl": "https://iili.io/CSeugyu.jpg",
     "status": "in_stock"
   },
   {
@@ -571,8 +634,9 @@
     "name": "Máscara de colágeno e probiótica",
     "cost": 0,
     "price": 20,
-    "image": "/uploads/mascara-de-colageno-e-probiotica-1785457982153/image.jpeg",
+    "image": "https://iili.io/CSeuYhv.jpg",
     "createdAt": "2026-07-31T00:33:02.156Z",
+    "imageUrl": "https://iili.io/CSeuYhv.jpg",
     "status": "in_stock"
   },
   {
@@ -580,8 +644,9 @@
     "name": "Máscara de colágeno e probiótica",
     "cost": 0,
     "price": 20,
-    "image": "/uploads/mascara-de-colageno-e-probiotica-1785457971058/image.jpeg",
+    "image": "https://iili.io/CSeuYhv.jpg",
     "createdAt": "2026-07-31T00:32:51.061Z",
+    "imageUrl": "https://iili.io/CSeuYhv.jpg",
     "status": "in_stock"
   },
   {
@@ -589,8 +654,9 @@
     "name": "Máscara de colágeno e probiótica",
     "cost": 0,
     "price": 20,
-    "image": "/uploads/mascara-de-colageno-e-probiotica-1785457956521/image.jpeg",
+    "image": "https://iili.io/CSeuYhv.jpg",
     "createdAt": "2026-07-31T00:32:36.524Z",
+    "imageUrl": "https://iili.io/CSeuYhv.jpg",
     "status": "in_stock"
   },
   {
@@ -598,8 +664,9 @@
     "name": "Máscara coreana - poros e hidratação",
     "cost": 0,
     "price": 27.5,
-    "image": "/uploads/mascara-coreana-poros-e-hidratacao-1785457842048/image.jpg",
+    "image": "https://iili.io/CSeuRpa.jpg",
     "createdAt": "2026-07-31T00:30:42.050Z",
+    "imageUrl": "https://iili.io/CSeuRpa.jpg",
     "status": "in_stock"
   },
   {
@@ -607,8 +674,9 @@
     "name": "Máscara coreana - poros e hidratação",
     "cost": 0,
     "price": 27.5,
-    "image": "/uploads/mascara-coreana-poros-e-hidratacao-1785457826823/image.jpg",
+    "image": "https://iili.io/CSeuT21.jpg",
     "createdAt": "2026-07-31T00:30:26.827Z",
+    "imageUrl": "https://iili.io/CSeuT21.jpg",
     "status": "in_stock"
   },
   {
@@ -616,8 +684,9 @@
     "name": "Máscara coreana - poros e hidratação",
     "cost": 0,
     "price": 27.5,
-    "image": "/uploads/mascara-coreana-poros-e-hidratacao-1785457782025/image.jpg",
+    "image": "https://iili.io/CSeuoBV.jpg",
     "createdAt": "2026-07-31T00:29:42.034Z",
+    "imageUrl": "https://iili.io/CSeuoBV.jpg",
     "status": "in_stock"
   },
   {
@@ -625,8 +694,9 @@
     "name": "Protetor solar - Abib",
     "cost": 110,
     "price": 160,
-    "image": "/uploads/protetor-solar-abib-1785457609182/image.jpg",
+    "image": "https://iili.io/CSeAxtf.jpg",
     "createdAt": "2026-07-31T00:26:49.185Z",
+    "imageUrl": "https://iili.io/CSeAxtf.jpg",
     "status": "in_stock"
   },
   {
@@ -634,8 +704,9 @@
     "name": "Serum Antienvelhecimento",
     "cost": 126,
     "price": 176.4,
-    "image": "/uploads/serum-antienvelhecimento-1785457494452/image.jpg",
+    "image": "https://iili.io/CSeAMPV.jpg",
     "createdAt": "2026-07-31T00:24:54.456Z",
+    "imageUrl": "https://iili.io/CSeAMPV.jpg",
     "status": "in_stock"
   }
 ]

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#c5a880">
-  <title>Lulu Estética - Painel Administrativo de Produtos Físicos</title>
+  <title>Dra. Luciene Oliveira - Painel Administrativo</title>
   
   <!-- Fontes e Ícones -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,7 +15,7 @@
   <!-- Estilos e Manifesto PWA -->
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icon-192.jpg">
+  <link rel="apple-touch-icon" href="logo.png">
 </head>
 <body>
   
@@ -23,12 +23,10 @@
   <header class="app-header">
     <div class="header-container">
       <div class="brand">
-        <div class="logo-icon">
-          <i data-lucide="shield-check"></i>
-        </div>
+        <img src="logo.png" alt="Dra. Luciene Oliveira" class="header-logo-img">
         <div>
-          <h1>Painel Administrativo</h1>
-          <span class="sub-brand">Gestão de Estoque & Vendas de Produtos Físicos</span>
+          <h1 style="font-size: 16px; margin: 0;">Painel Administrativo</h1>
+          <span class="sub-brand">Gestão de Estoque & Vendas</span>
         </div>
       </div>
       <div class="header-actions">
@@ -204,7 +202,7 @@
             <h3>Nenhum produto em estoque</h3>
             <p>Cadastre novos produtos físicos ao lado para alimentar seu estoque!</p>
           </div>
-          <div id="stock-pagination" class="pagination-container"></div>
+          <div id="stock-pagination" class="pagination-container" style="display: none;"></div>
         </div>
 
         <!-- Conteúdo 2: Tabela de Histórico de Vendas -->
@@ -229,7 +227,7 @@
               </table>
             </div>
           </div>
-          <div id="sales-pagination" class="pagination-container"></div>
+          <div id="sales-pagination" class="pagination-container" style="display: none;"></div>
           <div id="sales-empty" class="empty-state" style="display: none;">
             <div class="empty-icon"><i data-lucide="history"></i></div>
             <h3>Nenhuma venda registrada ainda</h3>

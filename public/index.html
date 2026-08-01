@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#c5a880">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Lulu Estética - Catálogo de Produtos Físicos</title>
+  <title>Dra. Luciene Oliveira | Catálogo de Produtos Físicos</title>
   
   <!-- Fontes e Ícones -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,7 +17,7 @@
   <!-- Estilos e Manifesto PWA -->
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icon-192.jpg">
+  <link rel="apple-touch-icon" href="logo.png">
 </head>
 <body class="public-body">
   
@@ -25,13 +25,7 @@
   <header class="app-header public-header">
     <div class="header-container">
       <div class="brand">
-        <div class="logo-icon">
-          <i data-lucide="sparkles"></i>
-        </div>
-        <div>
-          <h1>Lulu Estética</h1>
-          <span class="sub-brand">Catálogo de Produtos Físicos & Cosmetologia</span>
-        </div>
+        <img src="logo.png" alt="Dra. Luciene Oliveira - Farmacêutica Esteta" class="header-logo-img">
       </div>
       <div class="header-actions">
         <span id="connection-status" class="status-badge online">
@@ -49,8 +43,8 @@
   <!-- Banner de Boas-Vindas Público -->
   <section class="public-hero">
     <div class="hero-content">
-      <h2>Produtos Físicos de Estética Facial</h2>
-      <p>Confira nossos cosméticos, máscaras e produtos exclusivos disponíveis para pronta-entrega.</p>
+      <img src="logo.png" alt="Dra. Luciene Oliveira" class="hero-logo-center">
+      <p class="hero-tagline">Catálogo Exclusivo de Produtos Físicos & Cosmetologia</p>
     </div>
   </section>
 
@@ -69,12 +63,12 @@
     <div id="catalog-grid" class="catalog-grid public-grid">
       <div class="loading-state">
         <div class="spinner"></div>
-        <p>Carregando produtos disponíveis...</p>
+        <p>Carregando catálogo de produtos...</p>
       </div>
     </div>
 
-    <!-- Paginação Pública -->
-    <div id="public-pagination" class="pagination-container"></div>
+    <!-- Paginação Pública (Oculta para rolagem única) -->
+    <div id="public-pagination" class="pagination-container" style="display: none;"></div>
     
     <!-- Estado Vazio -->
     <div id="empty-state" class="empty-state" style="display: none;">
@@ -87,7 +81,7 @@
 
   <!-- Footer Público -->
   <footer class="public-footer">
-    <p>&copy; 2026 Lulu Estética Facial. Todos os direitos reservados.</p>
+    <p>&copy; 2026 Dra. Luciene Oliveira - Farmacêutica Esteta. Todos os direitos reservados.</p>
   </footer>
 
   <!-- Componente Toast -->

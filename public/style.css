@@ -117,10 +117,30 @@ body {
   letter-spacing: -0.5px;
 }
 
-.sub-brand {
-  font-size: 12px;
-  color: var(--text-secondary);
+.header-logo-img {
+  height: 44px;
+  width: auto;
+  max-width: 220px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.04));
+}
+
+.hero-logo-center {
+  max-width: 340px;
+  width: 85%;
+  height: auto;
+  margin: 0 auto 12px auto;
   display: block;
+  filter: drop-shadow(0 4px 12px rgba(197, 168, 128, 0.15));
+}
+
+.hero-tagline {
+  font-family: var(--font-title);
+  font-size: 15px;
+  color: var(--primary);
+  letter-spacing: 0.5px;
+  margin-top: 6px;
+  font-weight: 500;
 }
 
 .header-actions {

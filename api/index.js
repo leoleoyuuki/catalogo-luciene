@@ -2,42 +2,20 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs').promises;
-const os = require('os');
 
 const app = express();
-const PORT = process.env.PORT || 3005;
-
-// Chave da API do FreeImage.host
 const FREEIMAGE_API_KEY = '6d207e02198a847aa98d0a2a901485a5';
+const UPLOADS_DIR = path.join(__dirname, '..', 'uploads');
 
-// Configuração de diretórios
-const UPLOADS_DIR = path.join(__dirname, 'uploads');
-const PUBLIC_DIR = path.join(__dirname, 'public');
+// Armazenamento em memória global para persistência em ambiente serverless
+let globalProductsCache = null;
 
-// Cache em memória para performance ultrarrápida (0ms I/O)
-let productsCache = null;
-
-// Garantir que as pastas locais existem
-async function initDirs() {
-  try {
-    await fs.mkdir(UPLOADS_DIR, { recursive: true });
-    await fs.mkdir(PUBLIC_DIR, { recursive: true });
-  } catch (err) {
-    console.error('Erro ao inicializar pastas:', err);
-  }
-}
-initDirs();
-
-// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(PUBLIC_DIR));
-app.use('/uploads', express.static(UPLOADS_DIR));
 
-// Armazenamento em memória com multer
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 } // 10MB
+  limits: { fileSize: 10 * 1024 * 1024 }
 });
 
 function slugify(text) {
@@ -69,50 +47,50 @@ async function uploadToFreeImageHost(buffer, filename, mimetype) {
 
     const data = await response.json();
     if (data && data.status_code === 200 && data.image && data.image.url) {
-      console.log('Imagem enviada com sucesso para FreeImage.host:', data.image.url);
+      console.log('Upload FreeImage.host OK:', data.image.url);
       return data.image.url;
     } else {
-      console.warn('Aviso do FreeImage.host:', data);
+      console.warn('Aviso FreeImage.host:', data);
       return null;
     }
   } catch (err) {
-    console.error('Falha ao enviar imagem para FreeImage.host:', err);
+    console.error('Erro upload FreeImage.host:', err);
     return null;
   }
 }
 
-// Obter produtos com Cache em memória
-async function getCachedProducts(forceRefresh = false) {
-  if (productsCache !== null && !forceRefresh) {
-    return productsCache;
+// Obter lista de produtos (Carrega do disco local se disponível ou do cache)
+async function getProducts() {
+  if (globalProductsCache !== null) {
+    return globalProductsCache;
   }
 
-  const items = await fs.readdir(UPLOADS_DIR);
   const products = [];
-
-  for (const item of items) {
-    const itemPath = path.join(UPLOADS_DIR, item);
-    const stat = await fs.stat(itemPath);
-
-    if (stat.isDirectory()) {
-      const metadataPath = path.join(itemPath, 'metadata.json');
+  try {
+    const items = await fs.readdir(UPLOADS_DIR);
+    for (const item of items) {
+      const itemPath = path.join(UPLOADS_DIR, item);
       try {
-        await fs.access(metadataPath);
-        const dataStr = await fs.readFile(metadataPath, 'utf8');
-        const product = JSON.parse(dataStr);
-        if (!product.status) {
-          product.status = 'in_stock';
+        const stat = await fs.stat(itemPath);
+        if (stat.isDirectory()) {
+          const metadataPath = path.join(itemPath, 'metadata.json');
+          const dataStr = await fs.readFile(metadataPath, 'utf8');
+          const product = JSON.parse(dataStr);
+          if (!product.status) product.status = 'in_stock';
+          products.push(product);
         }
-        products.push(product);
       } catch (e) {
-        // Ignora pastas sem metadata.json
+        // Ignora erros de leitura de pastas individuais
       }
     }
+  } catch (e) {
+    // Pasta uploads não existe no Vercel
   }
 
+  // Se não houver produtos no disco, carrega os 71 produtos do seed-products.json
   if (products.length === 0) {
     try {
-      const seedPath = path.join(__dirname, 'seed-products.json');
+      const seedPath = path.join(__dirname, '..', 'seed-products.json');
       const seedStr = await fs.readFile(seedPath, 'utf8');
       const seedProducts = JSON.parse(seedStr);
       products.push(...seedProducts);
@@ -121,18 +99,12 @@ async function getCachedProducts(forceRefresh = false) {
     }
   }
 
-  // Ordenar por data decrescente
   products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  productsCache = products;
-  return productsCache;
+  globalProductsCache = products;
+  return globalProductsCache;
 }
 
-// Invalida a cache em memória
-function invalidateCache() {
-  productsCache = null;
-}
-
-// 1. Cadastrar Produto (Webhook / API)
+// 1. Cadastrar Produto Físico
 app.post('/api/products', upload.single('image'), async (req, res) => {
   try {
     const { name, cost, price } = req.body;
@@ -143,7 +115,7 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
     }
 
     if (!file) {
-      return res.status(400).json({ error: 'A imagem do procedimento é obrigatória.' });
+      return res.status(400).json({ error: 'A imagem do produto físico é obrigatória.' });
     }
 
     const numericCost = parseFloat(cost);
@@ -154,56 +126,58 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
     }
 
     const timestamp = Date.now();
-    const slug = slugify(name) || 'procedimento';
+    const slug = slugify(name) || 'produto';
     const folderId = `${slug}-${timestamp}`;
-    const productFolder = path.join(UPLOADS_DIR, folderId);
 
-    await fs.mkdir(productFolder, { recursive: true });
-
-    const ext = path.extname(file.originalname) || '.jpg';
-    const imageFilename = `image${ext}`;
-    const localImagePath = path.join(productFolder, imageFilename);
-    await fs.writeFile(localImagePath, file.buffer);
-
-    const localImageUri = `/uploads/${folderId}/${imageFilename}`;
+    // Upload remoto para FreeImage.host
     const remoteImageUrl = await uploadToFreeImageHost(file.buffer, file.originalname, file.mimetype);
+    const fallbackImage = `/uploads/${folderId}/image.jpg`;
 
     const metadata = {
       id: folderId,
       name: name.trim(),
       cost: numericCost,
       price: numericPrice,
-      image: localImageUri,
-      imageUrl: remoteImageUrl || localImageUri,
+      image: remoteImageUrl || fallbackImage,
+      imageUrl: remoteImageUrl || fallbackImage,
       status: 'in_stock',
       createdAt: new Date().toISOString()
     };
 
-    const metadataPath = path.join(productFolder, 'metadata.json');
-    await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2), 'utf8');
+    // Tentar salvar no disco local se ambiente permitir
+    try {
+      const productFolder = path.join(UPLOADS_DIR, folderId);
+      await fs.mkdir(productFolder, { recursive: true });
+      const ext = path.extname(file.originalname) || '.jpg';
+      const imageFilename = `image${ext}`;
+      await fs.writeFile(path.join(productFolder, imageFilename), file.buffer);
+      await fs.writeFile(path.join(productFolder, 'metadata.json'), JSON.stringify(metadata, null, 2), 'utf8');
+    } catch (e) {
+      // Ignora falhas de disco no Vercel
+    }
 
-    // Atualizar cache
-    invalidateCache();
+    // Atualizar cache em memória
+    const current = await getProducts();
+    current.unshift(metadata);
+    globalProductsCache = current;
 
-    console.log(`Procedimento cadastrado: ${metadata.name} (Pasta: ${folderId})`);
+    console.log(`Produto cadastrado: ${metadata.name}`);
     return res.status(201).json(metadata);
-
   } catch (err) {
-    console.error('Erro ao adicionar produto:', err);
-    return res.status(500).json({ error: 'Erro interno ao salvar procedimento no computador.' });
+    console.error('Erro ao cadastrar produto:', err);
+    return res.status(500).json({ error: 'Erro ao salvar produto.' });
   }
 });
 
-// 2. Listar Produtos (Admin - com Paginação de 10 em 10 e Estatísticas Globais)
+// 2. Listar Produtos (Admin)
 app.get('/api/products', async (req, res) => {
   try {
-    const allProducts = await getCachedProducts();
+    const allProducts = await getProducts();
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const search = (req.query.search || '').toLowerCase().trim();
     const isAll = req.query.all === 'true';
 
-    // Filtrar se houver busca
     const filtered = search ? allProducts.filter(p => p.name.toLowerCase().includes(search)) : allProducts;
 
     if (isAll) {
@@ -213,7 +187,6 @@ app.get('/api/products', async (req, res) => {
     const startIndex = (page - 1) * limit;
     const pagedProducts = filtered.slice(startIndex, startIndex + limit);
 
-    // Calcular estatísticas globais
     const stockItems = allProducts.filter(p => p.status !== 'sold');
     const soldItems = allProducts.filter(p => p.status === 'sold');
 
@@ -247,14 +220,14 @@ app.get('/api/products', async (req, res) => {
     });
   } catch (err) {
     console.error('Erro ao listar produtos:', err);
-    return res.status(500).json({ error: 'Erro ao buscar produtos.' });
+    return res.status(500).json({ error: 'Erro ao obter produtos.' });
   }
 });
 
-// 3. Listar Produtos Públicos (Somente em estoque, paginados de 10 em 10, SEM CUSTO)
+// 3. Listar Produtos Públicos (Somente em estoque, sem custo)
 app.get('/api/products/public', async (req, res) => {
   try {
-    const allProducts = await getCachedProducts();
+    const allProducts = await getProducts();
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const search = (req.query.search || '').toLowerCase().trim();
@@ -266,7 +239,7 @@ app.get('/api/products/public', async (req, res) => {
         id: p.id,
         name: p.name,
         price: p.price,
-        image: p.image,
+        image: p.imageUrl || p.image,
         imageUrl: p.imageUrl || p.image,
         createdAt: p.createdAt
       }));
@@ -288,29 +261,23 @@ app.get('/api/products/public', async (req, res) => {
       totalPages: Math.ceil(filtered.length / limit)
     });
   } catch (err) {
-    console.error('Erro ao listar produtos públicos:', err);
-    return res.status(500).json({ error: 'Erro ao buscar catálogo público.' });
+    console.error('Erro ao listar catálogo público:', err);
+    return res.status(500).json({ error: 'Erro ao carregar catálogo público.' });
   }
 });
 
-// 4. Abater Estoque / Dar Baixa (Vender Produto)
+// 4. Dar Baixa no Estoque (Vender Produto)
 app.post('/api/products/:id/sell', async (req, res) => {
   try {
     const { id } = req.params;
     const { soldPrice } = req.body;
 
-    const safeId = path.basename(id);
-    const productFolder = path.join(UPLOADS_DIR, safeId);
-    const metadataPath = path.join(productFolder, 'metadata.json');
+    const allProducts = await getProducts();
+    const product = allProducts.find(p => p.id === id);
 
-    try {
-      await fs.access(metadataPath);
-    } catch {
+    if (!product) {
       return res.status(404).json({ error: 'Produto não encontrado.' });
     }
-
-    const dataStr = await fs.readFile(metadataPath, 'utf8');
-    const product = JSON.parse(dataStr);
 
     const numericSoldPrice = parseFloat(soldPrice);
     const finalPrice = !isNaN(numericSoldPrice) && numericSoldPrice >= 0 ? numericSoldPrice : product.price;
@@ -319,16 +286,20 @@ app.post('/api/products/:id/sell', async (req, res) => {
     product.soldPrice = finalPrice;
     product.soldAt = new Date().toISOString();
 
-    await fs.writeFile(metadataPath, JSON.stringify(product, null, 2), 'utf8');
-
-    // Invalida a cache em memória
-    invalidateCache();
+    // Tentar atualizar disco local
+    try {
+      const safeId = path.basename(id);
+      const metadataPath = path.join(UPLOADS_DIR, safeId, 'metadata.json');
+      await fs.writeFile(metadataPath, JSON.stringify(product, null, 2), 'utf8');
+    } catch (e) {
+      // Ignora erros de escrita no Vercel
+    }
 
     console.log(`Baixa efetuada: "${product.name}" por R$ ${finalPrice}`);
     return res.json(product);
   } catch (err) {
     console.error('Erro ao dar baixa em produto:', err);
-    return res.status(500).json({ error: 'Erro ao efetuar baixa do estoque.' });
+    return res.status(500).json({ error: 'Erro ao efetuar baixa.' });
   }
 });
 
@@ -336,56 +307,31 @@ app.post('/api/products/:id/sell', async (req, res) => {
 app.delete('/api/products/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const safeId = path.basename(id);
-    const productFolder = path.join(UPLOADS_DIR, safeId);
+    let allProducts = await getProducts();
 
-    try {
-      await fs.access(productFolder);
-    } catch {
+    const index = allProducts.findIndex(p => p.id === id);
+    if (index === -1) {
       return res.status(404).json({ error: 'Produto não encontrado.' });
     }
 
-    await fs.rm(productFolder, { recursive: true, force: true });
-    
-    // Invalida a cache em memória
-    invalidateCache();
+    allProducts.splice(index, 1);
+    globalProductsCache = allProducts;
 
-    console.log(`Produto deletado: ${safeId}`);
-    return res.json({ success: true, message: 'Produto e pasta excluídos com sucesso.' });
+    // Tentar deletar pasta do disco local
+    try {
+      const safeId = path.basename(id);
+      const productFolder = path.join(UPLOADS_DIR, safeId);
+      await fs.rm(productFolder, { recursive: true, force: true });
+    } catch (e) {
+      // Ignora erros no Vercel
+    }
+
+    console.log(`Produto deletado: ${id}`);
+    return res.json({ success: true, message: 'Produto removido com sucesso.' });
   } catch (err) {
     console.error('Erro ao deletar produto:', err);
     return res.status(500).json({ error: 'Erro ao deletar produto.' });
   }
 });
 
-function getLocalIPs() {
-  const interfaces = os.networkInterfaces();
-  const addresses = [];
-  for (const name of Object.keys(interfaces)) {
-    for (const iface of interfaces[name]) {
-      if (iface.family === 'IPv4' && !iface.internal) {
-        addresses.push(iface.address);
-      }
-    }
-  }
-  return addresses;
-}
-
-app.listen(PORT, () => {
-  console.log(`\n======================================================`);
-  console.log(`  Servidor Lulu Estética (Otimizado + Cache) rodando!`);
-  console.log(`  Catálogo Público: http://localhost:${PORT}/index.html`);
-  console.log(`  Painel Admin:     http://localhost:${PORT}/admin.html`);
-  
-  const localIPs = getLocalIPs();
-  if (localIPs.length > 0) {
-    console.log(`\n  Acesse no seu celular pela rede Wi-Fi local:`);
-    localIPs.forEach(ip => {
-      console.log(`  👉 Público: http://${ip}:${PORT}/index.html`);
-      console.log(`  👉 Admin:   http://${ip}:${PORT}/admin.html`);
-    });
-  }
-  
-  console.log(`\n  Para compartilhar na Internet: npm run share`);
-  console.log(`======================================================\n`);
-});
+module.exports = app;

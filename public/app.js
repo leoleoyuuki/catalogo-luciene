@@ -63,11 +63,11 @@ function renderPublicCatalog() {
     emptyState.style.display = 'flex';
     if (publicPagination) publicPagination.innerHTML = '';
     if (searchTerm !== '') {
-      emptyState.querySelector('h3').textContent = 'Nenhum procedimento encontrado';
+      emptyState.querySelector('h3').textContent = 'Nenhum produto encontrado';
       emptyState.querySelector('p').textContent = 'Tente buscar por outros termos.';
     } else {
-      emptyState.querySelector('h3').textContent = 'Nenhum procedimento disponível';
-      emptyState.querySelector('p').textContent = 'Todos os itens foram reservados ou vendidos!';
+      emptyState.querySelector('h3').textContent = 'Nenhum produto disponível';
+      emptyState.querySelector('p').textContent = 'Todos os nossos produtos foram reservados ou vendidos!';
     }
     return;
   }
@@ -90,18 +90,18 @@ function renderPublicCatalog() {
 
     card.innerHTML = `
       <div class="product-image-container">
-        <span class="product-availability-badge"><i data-lucide="check-circle-2" style="width: 12px; height: 12px;"></i> Disponível</span>
+        <span class="product-availability-badge"><i data-lucide="check-circle-2" style="width: 12px; height: 12px;"></i> Em Estoque</span>
         <img src="${displayImg}" alt="${product.name}" loading="lazy" onerror="this.src='${product.image}'">
       </div>
       <div class="product-details">
         <h3 class="product-title" title="${product.name}">${product.name}</h3>
         <div class="product-price-public">
-          <span class="price-label-public">Valor do Procedimento</span>
+          <span class="price-label-public">Preço</span>
           <span class="price-val-public">${formatCurrency(product.price)}</span>
         </div>
-        <a href="https://wa.me/?text=Olá!%20Gostaria%20de%20agendar%20ou%20saber%20mais%20sobre%20o%20procedimento:%20${encodeURIComponent(product.name)}" target="_blank" class="btn btn-primary btn-block public-book-btn">
-          <i data-lucide="message-circle"></i>
-          <span>Tenho Interesse / Agendar</span>
+        <a href="https://wa.me/?text=Olá!%20Gostaria%20de%20comprar%20o%20produto:%20${encodeURIComponent(product.name)}" target="_blank" class="btn btn-primary btn-block public-book-btn">
+          <i data-lucide="shopping-cart"></i>
+          <span>Tenho Interesse / Comprar</span>
         </a>
       </div>
     `;

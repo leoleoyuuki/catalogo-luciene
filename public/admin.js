@@ -160,7 +160,7 @@ function setupFormValidation() {
     let hasError = false;
     const nameVal = document.getElementById('name-input').value.trim();
     if (!nameVal) {
-      document.getElementById('name-error').textContent = 'O nome do procedimento é obrigatório.';
+      document.getElementById('name-error').textContent = 'O nome do produto é obrigatório.';
       hasError = true;
     }
 
@@ -172,7 +172,7 @@ function setupFormValidation() {
 
     const priceVal = parseFloat(document.getElementById('price-input').value);
     if (isNaN(priceVal) || priceVal < 0) {
-      document.getElementById('price-error').textContent = 'Insira um preço de tabela válido.';
+      document.getElementById('price-error').textContent = 'Insira um preço de venda válido.';
       hasError = true;
     }
 
@@ -202,7 +202,7 @@ function setupFormValidation() {
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || 'Falha ao salvar produto.');
 
-      showToast('Procedimento cadastrado com sucesso!', 'success');
+      showToast('Produto cadastrado no estoque com sucesso!', 'success');
       productForm.reset();
       clearImageSelection();
       fetchProducts();
@@ -271,7 +271,6 @@ function openSellModal(product) {
   initIcons();
 }
 
-// Obter Produtos (Com suporte a Cache e Paginação rápida)
 async function fetchProducts() {
   try {
     const response = await fetch('/api/products?all=true');
@@ -305,7 +304,7 @@ function calculateStats() {
   const marginPct = totalRevenue > 0 ? (netProfit / totalRevenue) * 100 : 0;
 
   statStockCount.textContent = stockItems.length;
-  statStockValue.textContent = `${formatCurrency(stockCostTotal)} em insumos`;
+  statStockValue.textContent = `${formatCurrency(stockCostTotal)} em custos`;
   statSoldCount.textContent = soldItems.length;
   statRevenue.textContent = formatCurrency(totalRevenue);
   statProfit.textContent = formatCurrency(netProfit);
@@ -336,7 +335,6 @@ function renderViews() {
   renderSalesTable(soldItems);
 }
 
-// Renderização paginada de 10 em 10 do Estoque Ativo
 function renderStockGrid(stockItems) {
   if (stockItems.length === 0) {
     stockGrid.style.display = 'none';
@@ -374,11 +372,11 @@ function renderStockGrid(stockItems) {
         <h3 class="product-title" title="${product.name}">${product.name}</h3>
         <div class="product-prices">
           <div class="price-item cost">
-            <span class="price-label">Insumo</span>
+            <span class="price-label">Custo</span>
             <span class="price-val">${formatCurrency(product.cost)}</span>
           </div>
           <div class="price-item sale">
-            <span class="price-label">Tabela</span>
+            <span class="price-label">Preço</span>
             <span class="price-val">${formatCurrency(product.price)}</span>
           </div>
         </div>
@@ -411,7 +409,6 @@ function renderStockGrid(stockItems) {
   initIcons();
 }
 
-// Renderização paginada de 10 em 10 do Histórico de Vendas
 function renderSalesTable(soldItems) {
   if (soldItems.length === 0) {
     salesView.querySelector('.sales-table-card').style.display = 'none';
@@ -474,7 +471,6 @@ function renderSalesTable(soldItems) {
   initIcons();
 }
 
-// Componente Genérico de Paginação (10 em 10)
 function renderPaginationControls(container, currentPage, totalPages, onPageChange) {
   if (totalPages <= 1) {
     container.innerHTML = '';
@@ -505,7 +501,7 @@ function renderPaginationControls(container, currentPage, totalPages, onPageChan
 }
 
 async function confirmDeleteProduct(id, name) {
-  if (confirm(`Tem certeza que deseja excluir "${name}"?\nEsta ação removerá a pasta do produto do seu computador.`)) {
+  if (confirm(`Tem certeza que deseja excluir "${name}"?\nEsta ação removerá o produto do seu catálogo.`)) {
     try {
       const response = await fetch(`/api/products/${id}`, { method: 'DELETE' });
       const result = await response.json();

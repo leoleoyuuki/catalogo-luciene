@@ -1,2 +1,12 @@
-/node_modules
-/uploads
+# Dependências
+node_modules/
+
+# Arquivos temporários e uploads de teste locais
+uploads/*
+!uploads/.gitkeep
+
+# Logs e arquivos de sistema
+*.log
+.env
+.DS_Store
+Thumbs.db

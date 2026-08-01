@@ -1,7 +1,5 @@
 // Estado do Catálogo Público
 let publicProducts = [];
-let currentPage = 1;
-const ITEMS_PER_PAGE = 10;
 let deferredPrompt = null;
 let imageObserver = null;
 
@@ -22,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
   
   if (searchInput) {
     searchInput.addEventListener('input', () => {
-      currentPage = 1;
       renderPublicCatalog();
     });
   }
@@ -34,7 +31,7 @@ function initIcons() {
   }
 }
 
-// Otimizar URL de Imagem (Usar versão média .md.jpg de ~100KB em vez de original de 3MB)
+// Otimizar URL de Imagem (Usar versão média .md.jpg de ~100KB)
 function getOptimizedImageUrl(url) {
   if (!url) return '';
   if (url.includes('iili.io/') && !url.includes('.md.') && !url.includes('.th.')) {
@@ -58,7 +55,7 @@ function setupImageObserver() {
           observer.unobserve(img);
         }
       });
-    }, { rootMargin: '100px 0px' });
+    }, { rootMargin: '150px 0px' });
   }
 }
 
@@ -68,7 +65,8 @@ async function fetchPublicCatalog() {
     const response = await fetch('/api/products/public?all=true');
     if (!response.ok) throw new Error('Não foi possível carregar o catálogo.');
     
-    publicProducts = await response.json();
+    const data = await response.json();
+    publicProducts = Array.isArray(data) ? data : (data.products || []);
     renderPublicCatalog();
   } catch (err) {
     console.error(err);
@@ -83,15 +81,16 @@ async function fetchPublicCatalog() {
   }
 }
 
-// Renderizar o Catálogo Público Paginado com Imagens Otimizadas
+// Renderizar TODOS os Produtos na Mesma Tela com Lazy Loading
 function renderPublicCatalog() {
   const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
   const filtered = publicProducts.filter(p => p.name.toLowerCase().includes(searchTerm));
 
+  if (publicPagination) publicPagination.style.display = 'none';
+
   if (filtered.length === 0) {
     catalogGrid.style.display = 'none';
     emptyState.style.display = 'flex';
-    if (publicPagination) publicPagination.innerHTML = '';
     if (searchTerm !== '') {
       emptyState.querySelector('h3').textContent = 'Nenhum produto encontrado';
       emptyState.querySelector('p').textContent = 'Tente buscar por outros termos.';
@@ -106,13 +105,7 @@ function renderPublicCatalog() {
   catalogGrid.style.display = 'grid';
   catalogGrid.innerHTML = '';
 
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
-  if (currentPage > totalPages) currentPage = totalPages;
-
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const pageItems = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-
-  pageItems.forEach(product => {
+  filtered.forEach(product => {
     const card = document.createElement('div');
     card.className = 'product-card public-product-card';
 
@@ -146,41 +139,6 @@ function renderPublicCatalog() {
     }
 
     catalogGrid.appendChild(card);
-  });
-
-  renderPaginationControls(publicPagination, currentPage, totalPages, (newPage) => {
-    currentPage = newPage;
-    renderPublicCatalog();
-    catalogGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
-
-  initIcons();
-}
-
-function renderPaginationControls(container, page, totalPages, onPageChange) {
-  if (!container || totalPages <= 1) {
-    if (container) container.innerHTML = '';
-    return;
-  }
-
-  container.innerHTML = `
-    <div class="pagination-wrapper">
-      <button class="btn btn-secondary pagination-btn prev-btn" ${page === 1 ? 'disabled' : ''}>
-        <i data-lucide="chevron-left"></i> Anterior
-      </button>
-      <span class="pagination-info">Página <strong>${page}</strong> de <strong>${totalPages}</strong></span>
-      <button class="btn btn-secondary pagination-btn next-btn" ${page === totalPages ? 'disabled' : ''}>
-        Próxima <i data-lucide="chevron-right"></i>
-      </button>
-    </div>
-  `;
-
-  container.querySelector('.prev-btn').addEventListener('click', () => {
-    if (page > 1) onPageChange(page - 1);
-  });
-
-  container.querySelector('.next-btn').addEventListener('click', () => {
-    if (page < totalPages) onPageChange(page + 1);
   });
 
   initIcons();

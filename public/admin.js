@@ -1,9 +1,6 @@
 // Estado global da aplicação Admin
 let allProducts = [];
 let selectedProductForSell = null;
-let stockPage = 1;
-let salesPage = 1;
-const ITEMS_PER_PAGE = 10;
 let imageObserver = null;
 
 // Elementos DOM
@@ -69,7 +66,7 @@ function initIcons() {
   }
 }
 
-// Otimizar URL de Imagem (Usar versão média .md.jpg de ~100KB em vez de original de 3MB)
+// Otimizar URL de Imagem (Usar versão média .md.jpg de ~100KB)
 function getOptimizedImageUrl(url) {
   if (!url) return '';
   if (url.includes('iili.io/') && !url.includes('.md.') && !url.includes('.th.')) {
@@ -92,7 +89,7 @@ function setupImageObserver() {
           observer.unobserve(img);
         }
       });
-    }, { rootMargin: '100px 0px' });
+    }, { rootMargin: '150px 0px' });
   }
 }
 
@@ -169,8 +166,6 @@ function setupTabs() {
   });
 
   searchInput.addEventListener('input', () => {
-    stockPage = 1;
-    salesPage = 1;
     renderViews();
   });
 }
@@ -305,7 +300,8 @@ async function fetchProducts() {
     const response = await fetch('/api/products?all=true');
     if (!response.ok) throw new Error('Não foi possível buscar o estoque.');
 
-    allProducts = await response.json();
+    const data = await response.json();
+    allProducts = Array.isArray(data) ? data : (data.products || []);
     calculateStats();
     renderViews();
   } catch (err) {
@@ -365,10 +361,11 @@ function renderViews() {
 }
 
 function renderStockGrid(stockItems) {
+  if (stockPagination) stockPagination.style.display = 'none';
+
   if (stockItems.length === 0) {
     stockGrid.style.display = 'none';
     stockEmpty.style.display = 'flex';
-    stockPagination.innerHTML = '';
     return;
   }
 
@@ -376,13 +373,7 @@ function renderStockGrid(stockItems) {
   stockGrid.style.display = 'grid';
   stockGrid.innerHTML = '';
 
-  const totalPages = Math.ceil(stockItems.length / ITEMS_PER_PAGE);
-  if (stockPage > totalPages) stockPage = totalPages;
-
-  const startIndex = (stockPage - 1) * ITEMS_PER_PAGE;
-  const pageItems = stockItems.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-
-  pageItems.forEach(product => {
+  stockItems.forEach(product => {
     const margin = product.price > 0 ? ((product.price - product.cost) / product.price) * 100 : 0;
     const card = document.createElement('div');
     card.className = 'product-card';
@@ -438,20 +429,15 @@ function renderStockGrid(stockItems) {
     stockGrid.appendChild(card);
   });
 
-  renderPaginationControls(stockPagination, stockPage, totalPages, (newPage) => {
-    stockPage = newPage;
-    renderStockGrid(stockItems);
-    stockGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
-
   initIcons();
 }
 
 function renderSalesTable(soldItems) {
+  if (salesPagination) salesPagination.style.display = 'none';
+
   if (soldItems.length === 0) {
     salesView.querySelector('.sales-table-card').style.display = 'none';
     salesEmpty.style.display = 'flex';
-    salesPagination.innerHTML = '';
     return;
   }
 
@@ -459,13 +445,7 @@ function renderSalesTable(soldItems) {
   salesView.querySelector('.sales-table-card').style.display = 'block';
   salesTableBody.innerHTML = '';
 
-  const totalPages = Math.ceil(soldItems.length / ITEMS_PER_PAGE);
-  if (salesPage > totalPages) salesPage = totalPages;
-
-  const startIndex = (salesPage - 1) * ITEMS_PER_PAGE;
-  const pageItems = soldItems.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-
-  pageItems.forEach(product => {
+  soldItems.forEach(product => {
     const cost = parseFloat(product.cost || 0);
     const soldPrice = parseFloat(product.soldPrice || product.price || 0);
     const profit = soldPrice - cost;
@@ -509,40 +489,6 @@ function renderSalesTable(soldItems) {
     });
 
     salesTableBody.appendChild(tr);
-  });
-
-  renderPaginationControls(salesPagination, salesPage, totalPages, (newPage) => {
-    salesPage = newPage;
-    renderSalesTable(soldItems);
-  });
-
-  initIcons();
-}
-
-function renderPaginationControls(container, currentPage, totalPages, onPageChange) {
-  if (totalPages <= 1) {
-    container.innerHTML = '';
-    return;
-  }
-
-  container.innerHTML = `
-    <div class="pagination-wrapper">
-      <button class="btn btn-secondary pagination-btn prev-btn" ${currentPage === 1 ? 'disabled' : ''}>
-        <i data-lucide="chevron-left"></i> Anterior
-      </button>
-      <span class="pagination-info">Página <strong>${currentPage}</strong> de <strong>${totalPages}</strong></span>
-      <button class="btn btn-secondary pagination-btn next-btn" ${currentPage === totalPages ? 'disabled' : ''}>
-        Próxima <i data-lucide="chevron-right"></i>
-      </button>
-    </div>
-  `;
-
-  container.querySelector('.prev-btn').addEventListener('click', () => {
-    if (currentPage > 1) onPageChange(currentPage - 1);
-  });
-
-  container.querySelector('.next-btn').addEventListener('click', () => {
-    if (currentPage < totalPages) onPageChange(currentPage + 1);
   });
 
   initIcons();

@@ -3,6 +3,7 @@ let publicProducts = [];
 let currentPage = 1;
 const ITEMS_PER_PAGE = 10;
 let deferredPrompt = null;
+let imageObserver = null;
 
 // Elementos DOM
 const searchInput = document.getElementById('search-input');
@@ -14,6 +15,7 @@ const connectionStatus = document.getElementById('connection-status');
 
 document.addEventListener('DOMContentLoaded', () => {
   initIcons();
+  setupImageObserver();
   fetchPublicCatalog();
   setupPWA();
   setupNetworkMonitoring();
@@ -29,6 +31,34 @@ document.addEventListener('DOMContentLoaded', () => {
 function initIcons() {
   if (window.lucide) {
     window.lucide.createIcons();
+  }
+}
+
+// Otimizar URL de Imagem (Usar versão média .md.jpg de ~100KB em vez de original de 3MB)
+function getOptimizedImageUrl(url) {
+  if (!url) return '';
+  if (url.includes('iili.io/') && !url.includes('.md.') && !url.includes('.th.')) {
+    return url.replace(/\.(jpg|jpeg|png|webp)$/i, '.md.jpg');
+  }
+  return url;
+}
+
+// Observer para carregamento sob demanda conforme scroll (Lazy Loading ultrarrápido)
+function setupImageObserver() {
+  if ('IntersectionObserver' in window) {
+    imageObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          const dataSrc = img.getAttribute('data-src');
+          if (dataSrc) {
+            img.src = dataSrc;
+            img.onload = () => img.classList.add('loaded');
+          }
+          observer.unobserve(img);
+        }
+      });
+    }, { rootMargin: '100px 0px' });
   }
 }
 
@@ -53,7 +83,7 @@ async function fetchPublicCatalog() {
   }
 }
 
-// Renderizar o Catálogo Público Paginado (10 em 10)
+// Renderizar o Catálogo Público Paginado com Imagens Otimizadas
 function renderPublicCatalog() {
   const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
   const filtered = publicProducts.filter(p => p.name.toLowerCase().includes(searchTerm));
@@ -86,12 +116,13 @@ function renderPublicCatalog() {
     const card = document.createElement('div');
     card.className = 'product-card public-product-card';
 
-    const displayImg = product.imageUrl || product.image;
+    const rawImg = product.imageUrl || product.image;
+    const optimizedImg = getOptimizedImageUrl(rawImg);
 
     card.innerHTML = `
-      <div class="product-image-container">
+      <div class="product-image-container image-skeleton">
         <span class="product-availability-badge"><i data-lucide="check-circle-2" style="width: 12px; height: 12px;"></i> Em Estoque</span>
-        <img src="${displayImg}" alt="${product.name}" loading="lazy" onerror="this.src='${product.image}'">
+        <img class="lazy-img" data-src="${optimizedImg}" alt="${product.name}" onerror="if (this.src !== '${rawImg}') this.src='${rawImg}';">
       </div>
       <div class="product-details">
         <h3 class="product-title" title="${product.name}">${product.name}</h3>
@@ -105,6 +136,14 @@ function renderPublicCatalog() {
         </a>
       </div>
     `;
+
+    const imgEl = card.querySelector('.lazy-img');
+    if (imageObserver) {
+      imageObserver.observe(imgEl);
+    } else {
+      imgEl.src = optimizedImg;
+      imgEl.classList.add('loaded');
+    }
 
     catalogGrid.appendChild(card);
   });

@@ -4,6 +4,7 @@ let selectedProductForSell = null;
 let stockPage = 1;
 let salesPage = 1;
 const ITEMS_PER_PAGE = 10;
+let imageObserver = null;
 
 // Elementos DOM
 const dropzone = document.getElementById('dropzone');
@@ -52,6 +53,7 @@ const modalProductPrice = document.getElementById('modal-product-price');
 
 document.addEventListener('DOMContentLoaded', () => {
   initIcons();
+  setupImageObserver();
   setupImageUpload();
   setupFormValidation();
   setupTabs();
@@ -64,6 +66,33 @@ document.addEventListener('DOMContentLoaded', () => {
 function initIcons() {
   if (window.lucide) {
     window.lucide.createIcons();
+  }
+}
+
+// Otimizar URL de Imagem (Usar versão média .md.jpg de ~100KB em vez de original de 3MB)
+function getOptimizedImageUrl(url) {
+  if (!url) return '';
+  if (url.includes('iili.io/') && !url.includes('.md.') && !url.includes('.th.')) {
+    return url.replace(/\.(jpg|jpeg|png|webp)$/i, '.md.jpg');
+  }
+  return url;
+}
+
+function setupImageObserver() {
+  if ('IntersectionObserver' in window) {
+    imageObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          const dataSrc = img.getAttribute('data-src');
+          if (dataSrc) {
+            img.src = dataSrc;
+            img.onload = () => img.classList.add('loaded');
+          }
+          observer.unobserve(img);
+        }
+      });
+    }, { rootMargin: '100px 0px' });
   }
 }
 
@@ -358,15 +387,16 @@ function renderStockGrid(stockItems) {
     const card = document.createElement('div');
     card.className = 'product-card';
 
-    const displayImg = product.imageUrl || product.image;
+    const rawImg = product.imageUrl || product.image;
+    const optimizedImg = getOptimizedImageUrl(rawImg);
 
     card.innerHTML = `
-      <div class="product-image-container">
+      <div class="product-image-container image-skeleton">
         <span class="product-margin-badge">Margem: ${margin.toFixed(0)}%</span>
         <button class="delete-product-btn" title="Excluir produto" data-id="${product.id}">
           <i data-lucide="trash-2"></i>
         </button>
-        <img src="${displayImg}" alt="${product.name}" loading="lazy" onerror="this.src='${product.image}'">
+        <img class="lazy-img" data-src="${optimizedImg}" alt="${product.name}" onerror="if (this.src !== '${rawImg}') this.src='${rawImg}';">
       </div>
       <div class="product-details">
         <h3 class="product-title" title="${product.name}">${product.name}</h3>
@@ -387,6 +417,14 @@ function renderStockGrid(stockItems) {
         </button>
       </div>
     `;
+
+    const imgEl = card.querySelector('.lazy-img');
+    if (imageObserver) {
+      imageObserver.observe(imgEl);
+    } else {
+      imgEl.src = optimizedImg;
+      imgEl.classList.add('loaded');
+    }
 
     card.querySelector('.sell-action-btn').addEventListener('click', () => {
       openSellModal(product);
@@ -436,11 +474,14 @@ function renderSalesTable(soldItems) {
       day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit'
     }) : '-';
 
+    const rawImg = product.imageUrl || product.image;
+    const optimizedImg = getOptimizedImageUrl(rawImg);
+
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>
         <div class="table-product-info">
-          <img src="${product.imageUrl || product.image}" class="table-thumb" loading="lazy" alt="${product.name}">
+          <img data-src="${optimizedImg}" class="table-thumb lazy-img" alt="${product.name}" onerror="if (this.src !== '${rawImg}') this.src='${rawImg}';">
           <strong>${product.name}</strong>
         </div>
       </td>
@@ -455,6 +496,13 @@ function renderSalesTable(soldItems) {
         </button>
       </td>
     `;
+
+    const imgEl = tr.querySelector('.lazy-img');
+    if (imageObserver) {
+      imageObserver.observe(imgEl);
+    } else {
+      imgEl.src = optimizedImg;
+    }
 
     tr.querySelector('.delete-sales-btn').addEventListener('click', () => {
       confirmDeleteProduct(product.id, product.name);

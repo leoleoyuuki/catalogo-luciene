@@ -1191,3 +1191,24 @@ form {
   font-size: 13px;
   color: var(--text-secondary);
 }
+
+/* Carregamento Sob Demanda & Skeleton para Imagens */
+.product-image-container.image-skeleton {
+  background: linear-gradient(90deg, #f0eae1 25%, #f7f3ed 50%, #f0eae1 75%);
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.5s infinite;
+}
+
+@keyframes skeletonShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.lazy-img {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.lazy-img.loaded {
+  opacity: 1;
+}

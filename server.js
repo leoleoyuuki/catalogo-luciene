@@ -3,7 +3,6 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs').promises;
 const os = require('os');
-const { put, list } = require('@vercel/blob');
 
 const app = express();
 const PORT = process.env.PORT || 3005;
@@ -12,6 +11,11 @@ const FREEIMAGE_API_KEY = '6d207e02198a847aa98d0a2a901485a5';
 
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
 const PUBLIC_DIR = path.join(__dirname, 'public');
+
+// Firebase Cloud Firestore Config (100% Permanente e Isolado)
+const FIREBASE_PROJECT_ID = 'studio-5938741867-8213c';
+const FIREBASE_API_KEY = 'AIzaSyABjDC2MnlIJ2oqjxyl0Yu4nLeo_9D7dEk';
+const FIRESTORE_DOC_URL = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/draluciene_catalog/store?key=${FIREBASE_API_KEY}`;
 
 let productsCache = null;
 
@@ -76,36 +80,40 @@ async function uploadToFreeImageHost(buffer, filename, mimetype) {
   }
 }
 
-async function getProductsFromBlob() {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) return null;
+async function getProductsFromFirebase() {
   try {
-    const { blobs } = await list({ prefix: 'products.json' });
-    if (blobs && blobs.length > 0) {
-      const res = await fetch(`${blobs[0].url}?t=${Date.now()}`);
-      if (res.status === 200) {
-        const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) {
-          return data;
+    const res = await fetch(FIRESTORE_DOC_URL);
+    if (res.status === 200) {
+      const data = await res.json();
+      if (data.fields && data.fields.productsJson && data.fields.productsJson.stringValue) {
+        const parsed = JSON.parse(data.fields.productsJson.stringValue);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
         }
       }
     }
   } catch (e) {
-    console.error('Erro ao ler Vercel Blob:', e.message);
+    console.error('Erro ao ler do Firebase:', e.message);
   }
   return null;
 }
 
-async function saveProductsToBlob(products) {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) return;
+async function saveProductsToFirebase(products) {
   try {
-    await put('products.json', JSON.stringify(products, null, 2), {
-      access: 'public',
-      contentType: 'application/json',
-      addRandomSuffix: false,
-      allowOverwrite: true
+    const payload = {
+      fields: {
+        productsJson: { stringValue: JSON.stringify(products) },
+        updatedAt: { stringValue: new Date().toISOString() }
+      }
+    };
+    await fetch(FIRESTORE_DOC_URL, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
     });
+    console.log('Estado salvo no Firebase Cloud Firestore com sucesso!');
   } catch (e) {
-    console.error('Erro ao salvar Vercel Blob:', e.message);
+    console.error('Erro ao salvar no Firebase:', e.message);
   }
 }
 
@@ -114,9 +122,9 @@ async function getCachedProducts(forceRefresh = false) {
     return productsCache;
   }
 
-  const blobData = await getProductsFromBlob();
-  if (blobData && Array.isArray(blobData) && blobData.length > 0) {
-    productsCache = blobData;
+  const fbData = await getProductsFromFirebase();
+  if (fbData && Array.isArray(fbData) && fbData.length > 0) {
+    productsCache = fbData;
     return productsCache;
   }
 
@@ -156,9 +164,7 @@ async function getCachedProducts(forceRefresh = false) {
   products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   productsCache = products;
 
-  if (process.env.BLOB_READ_WRITE_TOKEN) {
-    await saveProductsToBlob(productsCache);
-  }
+  await saveProductsToFirebase(productsCache);
 
   return productsCache;
 }
@@ -221,7 +227,7 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
     current.unshift(metadata);
     invalidateCache();
 
-    await saveProductsToBlob(current);
+    await saveProductsToFirebase(current);
 
     console.log(`Produto cadastrado: ${metadata.name}`);
     return res.status(201).json(metadata);
@@ -358,7 +364,7 @@ app.post('/api/products/:id/sell', async (req, res) => {
     }
 
     invalidateCache();
-    await saveProductsToBlob(allProducts);
+    await saveProductsToFirebase(allProducts);
 
     console.log(`Baixa efetuada: "${product.name}" por R$ ${finalPrice}`);
     return res.json(product);
@@ -390,7 +396,7 @@ app.delete('/api/products/:id', async (req, res) => {
       //
     }
 
-    await saveProductsToBlob(allProducts);
+    await saveProductsToFirebase(allProducts);
 
     console.log(`Produto deletado: ${id}`);
     return res.json({ success: true, message: 'Produto e pasta excluídos com sucesso.' });
@@ -415,7 +421,7 @@ function getLocalIPs() {
 
 app.listen(PORT, () => {
   console.log(`\n======================================================`);
-  console.log(`  Servidor Lulu Estética (Vercel Blob Storage Ativo) rodando!`);
+  console.log(`  Servidor Dra. Luciene Oliveira (Firebase Cloud Firestore) rodando!`);
   console.log(`  Catálogo Público: http://localhost:${PORT}/index.html`);
   console.log(`  Painel Admin:     http://localhost:${PORT}/admin.html`);
   console.log(`======================================================\n`);

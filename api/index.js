@@ -2,7 +2,6 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs').promises;
-const { put, list } = require('@vercel/blob');
 
 const app = express();
 const router = express.Router();
@@ -10,7 +9,12 @@ const router = express.Router();
 const FREEIMAGE_API_KEY = '6d207e02198a847aa98d0a2a901485a5';
 const UPLOADS_DIR = path.join(__dirname, '..', 'uploads');
 
-// Armazenamento em memória global para acelerar respostas
+// Firebase Cloud Firestore Config (100% Permanente e Isolado)
+const FIREBASE_PROJECT_ID = 'studio-5938741867-8213c';
+const FIREBASE_API_KEY = 'AIzaSyABjDC2MnlIJ2oqjxyl0Yu4nLeo_9D7dEk';
+const FIRESTORE_DOC_URL = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/draluciene_catalog/store?key=${FIREBASE_API_KEY}`;
+
+// Armazenamento em memória para acelerar respostas
 let globalProductsCache = null;
 
 app.use(express.json());
@@ -62,53 +66,56 @@ async function uploadToFreeImageHost(buffer, filename, mimetype) {
   }
 }
 
-// Ler produtos do Vercel Blob Storage (100% Gratuito)
-async function getProductsFromBlob() {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) return null;
+// Ler produtos do Firebase Cloud Firestore (Persistência Permanente)
+async function getProductsFromFirebase() {
   try {
-    const { blobs } = await list({ prefix: 'products.json' });
-    if (blobs && blobs.length > 0) {
-      const res = await fetch(`${blobs[0].url}?t=${Date.now()}`);
-      if (res.status === 200) {
-        const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) {
-          console.log(`Lendo ${data.length} produtos do Vercel Blob Storage.`);
-          return data;
+    const res = await fetch(FIRESTORE_DOC_URL);
+    if (res.status === 200) {
+      const data = await res.json();
+      if (data.fields && data.fields.productsJson && data.fields.productsJson.stringValue) {
+        const parsed = JSON.parse(data.fields.productsJson.stringValue);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          console.log(`Lendo ${parsed.length} produtos do Firebase Cloud Firestore.`);
+          return parsed;
         }
       }
     }
   } catch (e) {
-    console.error('Erro ao ler Vercel Blob:', e.message);
+    console.error('Erro ao ler do Firebase:', e.message);
   }
   return null;
 }
 
-// Salvar produtos no Vercel Blob Storage (100% Gratuito)
-async function saveProductsToBlob(products) {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) return;
+// Salvar produtos no Firebase Cloud Firestore
+async function saveProductsToFirebase(products) {
   try {
-    await put('products.json', JSON.stringify(products, null, 2), {
-      access: 'public',
-      contentType: 'application/json',
-      addRandomSuffix: false,
-      allowOverwrite: true
+    const payload = {
+      fields: {
+        productsJson: { stringValue: JSON.stringify(products) },
+        updatedAt: { stringValue: new Date().toISOString() }
+      }
+    };
+    await fetch(FIRESTORE_DOC_URL, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
     });
-    console.log('Estado salvo no Vercel Blob Storage com sucesso!');
+    console.log('Estado salvo no Firebase Cloud Firestore com sucesso!');
   } catch (e) {
-    console.error('Erro ao salvar no Vercel Blob:', e.message);
+    console.error('Erro ao salvar no Firebase:', e.message);
   }
 }
 
-// Obter produtos (Vercel Blob -> Disco Local -> Seed Fallback)
+// Obter produtos (Firebase Cloud -> Disco Local -> Seed Fallback)
 async function getProducts() {
   if (globalProductsCache !== null) {
     return globalProductsCache;
   }
 
-  // 1. Tentar ler do Vercel Blob Storage se o token estiver presente
-  const blobData = await getProductsFromBlob();
-  if (blobData && Array.isArray(blobData) && blobData.length > 0) {
-    globalProductsCache = blobData;
+  // 1. Tentar ler do Firebase Cloud Firestore
+  const fbData = await getProductsFromFirebase();
+  if (fbData && Array.isArray(fbData) && fbData.length > 0) {
+    globalProductsCache = fbData;
     return globalProductsCache;
   }
 
@@ -151,10 +158,8 @@ async function getProducts() {
   products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   globalProductsCache = products;
 
-  // Persistir no Vercel Blob para os próximos deploys
-  if (process.env.BLOB_READ_WRITE_TOKEN) {
-    await saveProductsToBlob(globalProductsCache);
-  }
+  // Persistir no Firebase Cloud
+  await saveProductsToFirebase(globalProductsCache);
 
   return globalProductsCache;
 }
@@ -213,8 +218,8 @@ router.post('/products', upload.single('image'), async (req, res) => {
     current.unshift(metadata);
     globalProductsCache = current;
 
-    // Persistir estado no Vercel Blob Storage
-    await saveProductsToBlob(globalProductsCache);
+    // Persistir estado no Firebase Cloud Firestore
+    await saveProductsToFirebase(globalProductsCache);
 
     console.log(`Produto cadastrado: ${metadata.name}`);
     return res.status(201).json(metadata);
@@ -349,8 +354,8 @@ router.post('/products/:id/sell', async (req, res) => {
       // Ignora no Vercel
     }
 
-    // Persistir estado no Vercel Blob Storage
-    await saveProductsToBlob(allProducts);
+    // Persistir estado no Firebase Cloud Firestore
+    await saveProductsToFirebase(allProducts);
 
     console.log(`Baixa efetuada: "${product.name}" por R$ ${finalPrice}`);
     return res.json(product);
@@ -382,8 +387,8 @@ router.delete('/products/:id', async (req, res) => {
       // Ignora no Vercel
     }
 
-    // Persistir estado no Vercel Blob Storage
-    await saveProductsToBlob(allProducts);
+    // Persistir estado no Firebase Cloud Firestore
+    await saveProductsToFirebase(allProducts);
 
     console.log(`Produto deletado: ${id}`);
     return res.json({ success: true, message: 'Produto removido com sucesso.' });

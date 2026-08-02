@@ -9,12 +9,11 @@ const router = express.Router();
 const FREEIMAGE_API_KEY = '6d207e02198a847aa98d0a2a901485a5';
 const UPLOADS_DIR = path.join(__dirname, '..', 'uploads');
 
-// Firebase Cloud Firestore Config (100% Permanente e Isolado)
-const FIREBASE_PROJECT_ID = 'studio-5938741867-8213c';
-const FIREBASE_API_KEY = 'AIzaSyABjDC2MnlIJ2oqjxyl0Yu4nLeo_9D7dEk';
+// Firebase Cloud Firestore Config (Projeto Exato "Dra Luciene Catalogo")
+const FIREBASE_PROJECT_ID = 'luciene-catalogo-2026';
+const FIREBASE_API_KEY = 'AIzaSyBL1ZG0EDXlHvZ-BWF53cEZlpxPLiTM8U4';
 const FIRESTORE_DOC_URL = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/draluciene_catalog/store?key=${FIREBASE_API_KEY}`;
 
-// Armazenamento em memória para acelerar respostas
 let globalProductsCache = null;
 
 app.use(express.json());
@@ -66,7 +65,7 @@ async function uploadToFreeImageHost(buffer, filename, mimetype) {
   }
 }
 
-// Ler produtos do Firebase Cloud Firestore (Persistência Permanente)
+// Ler produtos do Firebase Cloud Firestore ("Dra Luciene Catalogo")
 async function getProductsFromFirebase() {
   try {
     const res = await fetch(FIRESTORE_DOC_URL);
@@ -75,7 +74,7 @@ async function getProductsFromFirebase() {
       if (data.fields && data.fields.productsJson && data.fields.productsJson.stringValue) {
         const parsed = JSON.parse(data.fields.productsJson.stringValue);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          console.log(`Lendo ${parsed.length} produtos do Firebase Cloud Firestore.`);
+          console.log(`Lendo ${parsed.length} produtos do Firebase (Dra Luciene Catalogo).`);
           return parsed;
         }
       }
@@ -86,7 +85,7 @@ async function getProductsFromFirebase() {
   return null;
 }
 
-// Salvar produtos no Firebase Cloud Firestore
+// Salvar produtos no Firebase Cloud Firestore ("Dra Luciene Catalogo")
 async function saveProductsToFirebase(products) {
   try {
     const payload = {
@@ -95,12 +94,16 @@ async function saveProductsToFirebase(products) {
         updatedAt: { stringValue: new Date().toISOString() }
       }
     };
-    await fetch(FIRESTORE_DOC_URL, {
+    const res = await fetch(FIRESTORE_DOC_URL, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    console.log('Estado salvo no Firebase Cloud Firestore com sucesso!');
+    if (res.status === 200) {
+      console.log('Estado salvo no Firebase Dra Luciene Catalogo com sucesso!');
+    } else {
+      console.warn('Status ao salvar no Firebase:', res.status);
+    }
   } catch (e) {
     console.error('Erro ao salvar no Firebase:', e.message);
   }
@@ -218,7 +221,6 @@ router.post('/products', upload.single('image'), async (req, res) => {
     current.unshift(metadata);
     globalProductsCache = current;
 
-    // Persistir estado no Firebase Cloud Firestore
     await saveProductsToFirebase(globalProductsCache);
 
     console.log(`Produto cadastrado: ${metadata.name}`);
@@ -354,7 +356,6 @@ router.post('/products/:id/sell', async (req, res) => {
       // Ignora no Vercel
     }
 
-    // Persistir estado no Firebase Cloud Firestore
     await saveProductsToFirebase(allProducts);
 
     console.log(`Baixa efetuada: "${product.name}" por R$ ${finalPrice}`);
@@ -387,7 +388,6 @@ router.delete('/products/:id', async (req, res) => {
       // Ignora no Vercel
     }
 
-    // Persistir estado no Firebase Cloud Firestore
     await saveProductsToFirebase(allProducts);
 
     console.log(`Produto deletado: ${id}`);

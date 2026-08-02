@@ -12,9 +12,9 @@ const FREEIMAGE_API_KEY = '6d207e02198a847aa98d0a2a901485a5';
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
-// Firebase Cloud Firestore Config (100% Permanente e Isolado)
-const FIREBASE_PROJECT_ID = 'studio-5938741867-8213c';
-const FIREBASE_API_KEY = 'AIzaSyABjDC2MnlIJ2oqjxyl0Yu4nLeo_9D7dEk';
+// Firebase Cloud Firestore Config (Projeto Exato "Dra Luciene Catalogo")
+const FIREBASE_PROJECT_ID = 'luciene-catalogo-2026';
+const FIREBASE_API_KEY = 'AIzaSyBL1ZG0EDXlHvZ-BWF53cEZlpxPLiTM8U4';
 const FIRESTORE_DOC_URL = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/draluciene_catalog/store?key=${FIREBASE_API_KEY}`;
 
 let productsCache = null;
@@ -106,12 +106,14 @@ async function saveProductsToFirebase(products) {
         updatedAt: { stringValue: new Date().toISOString() }
       }
     };
-    await fetch(FIRESTORE_DOC_URL, {
+    const res = await fetch(FIRESTORE_DOC_URL, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    console.log('Estado salvo no Firebase Cloud Firestore com sucesso!');
+    if (res.status === 200) {
+      console.log('Estado salvo no Firebase Dra Luciene Catalogo com sucesso!');
+    }
   } catch (e) {
     console.error('Erro ao salvar no Firebase:', e.message);
   }
@@ -421,7 +423,7 @@ function getLocalIPs() {
 
 app.listen(PORT, () => {
   console.log(`\n======================================================`);
-  console.log(`  Servidor Dra. Luciene Oliveira (Firebase Cloud Firestore) rodando!`);
+  console.log(`  Servidor Dra. Luciene Oliveira (Firebase "Dra Luciene Catalogo") rodando!`);
   console.log(`  Catálogo Público: http://localhost:${PORT}/index.html`);
   console.log(`  Painel Admin:     http://localhost:${PORT}/admin.html`);
   console.log(`======================================================\n`);
